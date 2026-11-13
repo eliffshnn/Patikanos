@@ -1,9 +1,9 @@
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 from zoneinfo import ZoneInfo
 
 import httpx
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from app.weather.client import get_hourly
@@ -19,8 +19,8 @@ router = APIRouter(prefix="/weather", tags=["weather"], default_response_class=U
 
 @router.get("/score")
 def get_score(
-    lat: float,
-    lon: float,
+    lat: Annotated[float, Query(ge=-90, le=90)],
+    lon: Annotated[float, Query(ge=-180, le=180)],
     activity: Literal["bike", "walk"],
     day: Literal["today", "tomorrow"] = "today",
 ):
