@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/home_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const MyApp());
@@ -14,14 +15,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Patikanos',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        useMaterial3: true,
-        scaffoldBackgroundColor: const Color(0xFF171A1D),
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1D7A68),
-          brightness: Brightness.light,
-        ),
-      ),
+      theme: AppTheme.light,
       home: const HomeScreen(),
     );
   }

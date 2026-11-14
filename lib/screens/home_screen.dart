@@ -16,11 +16,13 @@ class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   String _selectedActivity = 'Bisiklet';
 
+  static const _exploreIndex = 1;
+
   final List<_NavItem> _navItems = const [
-    _NavItem(label: 'Bugün', icon: Icons.sunny_snowing),
-    _NavItem(label: 'Keşfet', icon: Icons.explore_outlined),
-    _NavItem(label: 'Favoriler', icon: Icons.favorite_border),
-    _NavItem(label: 'Profil', icon: Icons.person_outline),
+    _NavItem(label: 'Bugün', icon: Icons.wb_sunny_outlined, selectedIcon: Icons.wb_sunny_rounded),
+    _NavItem(label: 'Keşfet', icon: Icons.explore_outlined, selectedIcon: Icons.explore_rounded),
+    _NavItem(label: 'Favoriler', icon: Icons.favorite_border_rounded, selectedIcon: Icons.favorite_rounded),
+    _NavItem(label: 'Profil', icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded),
   ];
 
   void _onNavTapped(int index) {
@@ -41,42 +43,44 @@ class _HomeScreenState extends State<HomeScreen> {
       TodayScreen(
         selectedActivity: _selectedActivity,
         onActivitySelected: _onActivitySelected,
+        onSeeAllRoutes: () => _onNavTapped(_exploreIndex),
       ),
       const ExploreScreen(),
-      const FavoritesScreen(),
+      FavoritesScreen(onExplore: () => _onNavTapped(_exploreIndex)),
       const ProfileScreen(),
     ];
 
     return Scaffold(
-      backgroundColor: const Color(0xFF171A1D),
       body: SafeArea(
-        top: true,
         bottom: false,
         child: IndexedStack(index: _selectedIndex, children: pages),
       ),
-      bottomNavigationBar: NavigationBar(
-        backgroundColor: const Color(0xFFE9E4DF),
-        elevation: 0,
-        height: 68,
-        selectedIndex: _selectedIndex,
-        onDestinationSelected: _onNavTapped,
-        destinations: _navItems
-            .map(
-              (item) => NavigationDestination(
-                icon: Icon(item.icon),
-                selectedIcon: Icon(item.icon, color: const Color(0xFF1D7A68)),
-                label: item.label,
-              ),
-            )
-            .toList(),
+      bottomNavigationBar: DecoratedBox(
+        decoration: const BoxDecoration(
+          boxShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, -2))],
+        ),
+        child: NavigationBar(
+          selectedIndex: _selectedIndex,
+          onDestinationSelected: _onNavTapped,
+          destinations: _navItems
+              .map(
+                (item) => NavigationDestination(
+                  icon: Icon(item.icon),
+                  selectedIcon: Icon(item.selectedIcon),
+                  label: item.label,
+                ),
+              )
+              .toList(),
+        ),
       ),
     );
   }
 }
 
 class _NavItem {
-  const _NavItem({required this.label, required this.icon});
+  const _NavItem({required this.label, required this.icon, required this.selectedIcon});
 
   final String label;
   final IconData icon;
+  final IconData selectedIcon;
 }

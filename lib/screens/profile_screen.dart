@@ -1,93 +1,132 @@
 import 'package:flutter/material.dart';
 
+import '../data/favorites.dart';
+import '../theme/app_theme.dart';
+
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFE9E4DF),
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
+    final textTheme = Theme.of(context).textTheme;
+
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      children: [
+        Text('Profil ve Ayarlar', style: textTheme.headlineLarge),
+        const SizedBox(height: 18),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: AppColors.heroGradient,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            children: [
+              Row(
+                children: [
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: Colors.white.withValues(alpha: 0.18),
+                      border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
+                    ),
+                    child: const Icon(Icons.person_rounded, size: 34, color: Colors.white),
+                  ),
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          'Ayşe Yılmaz',
+                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          'ayse@example.com',
+                          style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 18),
+              ValueListenableBuilder<Set<String>>(
+                valueListenable: Favorites.ids,
+                builder: (context, ids, _) => Row(
+                  children: [
+                    _Stat(value: '${ids.length}', label: 'Favori rota'),
+                    const _Stat(value: '0', label: 'Tamamlanan'),
+                    const _Stat(value: '0 km', label: 'Toplam mesafe'),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text('Tercihler', style: textTheme.titleLarge),
+        const SizedBox(height: 10),
+        const _SettingsGroup(
           children: [
-            const Text(
-              'Profil ve Ayarlar',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1E1E1E),
-              ),
-            ),
-            const SizedBox(height: 16),
-            Center(
-              child: Container(
-                width: 110,
-                height: 110,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: const Color(0xFFF3F1EE),
-                  border: Border.all(color: const Color(0xFF2B2B2B), width: 1.2),
-                ),
-                child: const Icon(
-                  Icons.person,
-                  size: 48,
-                  color: Color(0xFF2B2B2B),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            Container(
-              width: double.infinity,
-              padding: const EdgeInsets.symmetric(vertical: 18),
-              decoration: BoxDecoration(
-                color: const Color(0xFFF5F3F1),
-                borderRadius: BorderRadius.circular(16),
-                border: Border.all(color: const Color(0xFF2B2B2B), width: 1.1),
-              ),
-              child: const Center(
-                child: Text(
-                  'Ayşe Yılmaz\nayse@example.com',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.w600,
-                    color: Color(0xFF1E1E1E),
-                  ),
-                ),
-              ),
-            ),
-            const SizedBox(height: 18),
-            const _ProfileRow(label: 'Aktivite tercihi', value: 'Bisiklet'),
-            const SizedBox(height: 10),
-            const _ProfileRow(label: 'Sıcaklık birimi', value: '°C'),
-            const SizedBox(height: 10),
-            const _ProfileRow(label: 'Bildirimler', value: 'Açık'),
-            const SizedBox(height: 10),
-            const _ProfileRow(label: 'Dil', value: 'Türkçe'),
-            const SizedBox(height: 20),
-            SizedBox(
-              width: double.infinity,
-              child: OutlinedButton(
-                onPressed: () {},
-                style: OutlinedButton.styleFrom(
-                  foregroundColor: const Color(0xFFE04B4B),
-                  side: const BorderSide(color: Color(0xFFE04B4B), width: 1.4),
-                  padding: const EdgeInsets.symmetric(vertical: 16),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                ),
-                child: const Text(
-                  'Çıkış yap',
-                  style: TextStyle(
-                    fontSize: 18,
-                    fontWeight: FontWeight.w700,
-                  ),
-                ),
-              ),
-            ),
+            _SettingsRow(icon: Icons.directions_bike_rounded, label: 'Aktivite tercihi', value: 'Bisiklet'),
+            _SettingsRow(icon: Icons.thermostat_rounded, label: 'Sıcaklık birimi', value: '°C'),
+            _SettingsRow(icon: Icons.notifications_none_rounded, label: 'Bildirimler', value: 'Açık'),
+            _SettingsRow(icon: Icons.language_rounded, label: 'Dil', value: 'Türkçe'),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Text('Uygulama', style: textTheme.titleLarge),
+        const SizedBox(height: 10),
+        const _SettingsGroup(
+          children: [
+            _SettingsRow(icon: Icons.info_outline_rounded, label: 'Hakkında', value: 'v1.0.0'),
+            _SettingsRow(icon: Icons.groups_outlined, label: 'Ekip', value: 'Patikanos'),
+          ],
+        ),
+        const SizedBox(height: 24),
+        OutlinedButton.icon(
+          onPressed: () {},
+          icon: const Icon(Icons.logout_rounded),
+          label: const Text('Çıkış yap'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.bad,
+            side: BorderSide(color: AppColors.bad.withValues(alpha: 0.5)),
+            minimumSize: const Size.fromHeight(52),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+class _Stat extends StatelessWidget {
+  const _Stat({required this.value, required this.label});
+
+  final String value;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Expanded(
+      child: Container(
+        margin: const EdgeInsets.symmetric(horizontal: 4),
+        padding: const EdgeInsets.symmetric(vertical: 12),
+        decoration: BoxDecoration(
+          color: Colors.white.withValues(alpha: 0.14),
+          borderRadius: BorderRadius.circular(16),
+        ),
+        child: Column(
+          children: [
+            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
+            const SizedBox(height: 2),
+            Text(label, style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8))),
           ],
         ),
       ),
@@ -95,45 +134,52 @@ class ProfileScreen extends StatelessWidget {
   }
 }
 
-class _ProfileRow extends StatelessWidget {
-  const _ProfileRow({required this.label, required this.value});
+class _SettingsGroup extends StatelessWidget {
+  const _SettingsGroup({required this.children});
 
+  final List<Widget> children;
+
+  @override
+  Widget build(BuildContext context) {
+    return Card(
+      clipBehavior: Clip.antiAlias,
+      child: Column(
+        children: [
+          for (var i = 0; i < children.length; i++) ...[
+            if (i > 0) const Divider(indent: 60),
+            children[i],
+          ],
+        ],
+      ),
+    );
+  }
+}
+
+class _SettingsRow extends StatelessWidget {
+  const _SettingsRow({required this.icon, required this.label, required this.value});
+
+  final IconData icon;
   final String label;
   final String value;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF4F3F1),
-        border: Border.all(color: const Color(0xFF2B2B2B), width: 1.1),
-        borderRadius: BorderRadius.circular(12),
+    return ListTile(
+      leading: Container(
+        width: 36,
+        height: 36,
+        decoration: BoxDecoration(color: AppColors.seaLight, borderRadius: BorderRadius.circular(10)),
+        child: Icon(icon, size: 20, color: AppColors.sea),
       ),
-      child: Row(
+      title: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.ink)),
+      trailing: Row(
+        mainAxisSize: MainAxisSize.min,
         children: [
-          Expanded(
-            child: Text(
-              label,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(
-                fontSize: 14,
-                color: Color(0xFF2E2E2E),
-              ),
-            ),
-          ),
-          const SizedBox(width: 8),
-          Text(
-            value,
-            overflow: TextOverflow.ellipsis,
-            style: const TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF2E2E2E),
-            ),
-          ),
+          Text(value, style: Theme.of(context).textTheme.bodyMedium),
+          const Icon(Icons.chevron_right_rounded, color: AppColors.muted),
         ],
       ),
+      onTap: () {},
     );
   }
 }

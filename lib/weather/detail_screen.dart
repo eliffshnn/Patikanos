@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
 import 'weather_model.dart';
 
 class DetailScreen extends StatelessWidget {
@@ -17,9 +18,9 @@ class DetailScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(title: Text('Saatlik detay · $title')),
       body: ListView.separated(
-        padding: const EdgeInsets.all(16),
+        padding: const EdgeInsets.fromLTRB(20, 4, 20, 24),
         itemCount: hours.length,
-        separatorBuilder: (_, __) => const Divider(height: 1),
+        separatorBuilder: (_, _) => const SizedBox(height: 8),
         itemBuilder: (context, i) =>
             _HourRow(hour: hours[i], isNow: hours[i].time == data.nowTime),
       ),
@@ -34,56 +35,87 @@ class _HourRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final color = scoreColor(hour.score);
     return Container(
-      color: isNow ? Colors.blue.withValues(alpha: 0.08) : null,
-      padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 4),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        border: Border.all(color: isNow ? AppColors.sea : AppColors.line, width: isNow ? 1.6 : 1),
+      ),
+      child: Row(
         children: [
-          Row(
-            children: [
-              SizedBox(
-                width: 56,
-                child: Text(
-                  hour.time,
-                  style: TextStyle(fontWeight: isNow ? FontWeight.bold : FontWeight.normal),
-                ),
-              ),
-              Expanded(
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(4),
+          SizedBox(
+            width: 54,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(hour.time, style: Theme.of(context).textTheme.titleMedium),
+                if (isNow)
+                  const Text('Şimdi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.sea)),
+              ],
+            ),
+          ),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(6),
                   child: LinearProgressIndicator(
                     value: hour.score / 10,
-                    minHeight: 10,
-                    color: scoreColor(hour.score),
-                    backgroundColor: Colors.grey.shade200,
+                    minHeight: 8,
+                    color: color,
+                    backgroundColor: AppColors.sandDark,
                   ),
                 ),
-              ),
-              const SizedBox(width: 12),
-              SizedBox(
-                width: 28,
-                child: Text(
-                  '${hour.score}',
-                  textAlign: TextAlign.right,
-                  style: const TextStyle(fontWeight: FontWeight.bold),
+                const SizedBox(height: 10),
+                Wrap(
+                  spacing: 12,
+                  runSpacing: 4,
+                  children: [
+                    _Metric(icon: Icons.thermostat_rounded, label: '${hour.feelsLike.toStringAsFixed(0)}°C'),
+                    _Metric(icon: Icons.air_rounded, label: '${hour.wind.toStringAsFixed(0)} km/s'),
+                    _Metric(icon: Icons.umbrella_rounded, label: '%${hour.rainProb}'),
+                    _Metric(icon: Icons.wb_sunny_outlined, label: 'UV ${hour.uv.toStringAsFixed(0)}'),
+                  ],
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
-          const SizedBox(height: 4),
-          Padding(
-            padding: const EdgeInsets.only(left: 56),
+          const SizedBox(width: 12),
+          Container(
+            width: 40,
+            height: 40,
+            alignment: Alignment.center,
+            decoration: BoxDecoration(color: color.withValues(alpha: 0.14), shape: BoxShape.circle),
             child: Text(
-              '🌡 ${hour.feelsLike.toStringAsFixed(0)}°C   '
-              '💨 ${hour.wind.toStringAsFixed(0)} km/s   '
-              '☔ %${hour.rainProb}   '
-              '☀️ UV ${hour.uv.toStringAsFixed(0)}',
-              style: Theme.of(context).textTheme.bodySmall,
+              '${hour.score}',
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color),
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+class _Metric extends StatelessWidget {
+  const _Metric({required this.icon, required this.label});
+
+  final IconData icon;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: AppColors.muted),
+        const SizedBox(width: 3),
+        Text(label, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }

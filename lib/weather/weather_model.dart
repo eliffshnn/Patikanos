@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../theme/app_theme.dart';
+
 class HourlyWeather {
   final String time;
   final int score;
@@ -64,7 +66,7 @@ class WeatherScore {
 }
 
 Color scoreColor(int score) =>
-    score >= 8 ? Colors.green : (score >= 5 ? Colors.orange : Colors.red);
+    score >= 8 ? AppColors.good : (score >= 5 ? AppColors.okay : AppColors.bad);
 
 String scoreLabel(int score) =>
     score >= 8 ? 'Harika' : (score >= 5 ? 'İdare eder' : 'Önerilmez');
