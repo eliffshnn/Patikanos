@@ -90,7 +90,11 @@ class TodayScreen extends StatelessWidget {
           onPressed: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => WeatherScreen(initialActivity: selectedActivity == 'Yürüyüş' ? 'walk' : 'bike'),
+              builder: (_) => WeatherScreen(
+                activity: selectedActivity == 'Yürüyüş'
+                    ? 'walk'
+                    : (selectedActivity == 'İkisi de' ? 'both' : 'bike'),
+              ),
             ),
           ),
           icon: const Icon(Icons.wb_twilight_rounded),

@@ -117,7 +117,7 @@ class RouteDetailScreen extends StatelessWidget {
                               lat: route.startLat,
                               lon: route.startLon,
                               placeName: route.region,
-                              initialActivity: route.weatherActivity,
+                              activity: route.weatherActivity,
                             ),
                           ),
                         ),

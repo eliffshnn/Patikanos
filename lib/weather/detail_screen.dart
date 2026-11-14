@@ -9,11 +9,8 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hours = data.hourly.where((h) {
-      final hour = int.parse(h.time.substring(0, 2));
-      return hour >= 6 && hour < 21;
-    }).toList();
-    final title = data.activity == 'bike' ? 'Bisiklet' : 'Yürüyüş';
+    final hours = data.hourly;
+    final title = activityName(data.activity);
 
     return Scaffold(
       appBar: AppBar(title: Text('Saatlik detay · $title')),

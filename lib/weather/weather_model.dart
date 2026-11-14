@@ -33,6 +33,7 @@ class WeatherScore {
   final String activity;
   final String? nowTime;
   final int? nowScore;
+  final List<Tip> nowTips;
   final String? bestStart;
   final String? bestEnd;
   final List<String> warnings;
@@ -42,6 +43,7 @@ class WeatherScore {
     required this.activity,
     this.nowTime,
     this.nowScore,
+    this.nowTips = const [],
     this.bestStart,
     this.bestEnd,
     required this.warnings,
@@ -55,6 +57,7 @@ class WeatherScore {
       activity: json['activity'] as String,
       nowTime: now?['time'] as String?,
       nowScore: (now?['score'] as num?)?.toInt(),
+      nowTips: ((now?['tips'] as List?) ?? const []).map((t) => Tip.fromJson(t as Map<String, dynamic>)).toList(),
       bestStart: best?['start'] as String?,
       bestEnd: best?['end'] as String?,
       warnings: (json['warnings'] as List).cast<String>(),
@@ -65,8 +68,52 @@ class WeatherScore {
   }
 }
 
-Color scoreColor(int score) =>
-    score >= 8 ? AppColors.good : (score >= 5 ? AppColors.okay : AppColors.bad);
+Color scoreColor(int score) {
+  if (score >= 9) return AppColors.good;
+  if (score >= 7) return AppColors.fair;
+  if (score >= 5) return AppColors.okay;
+  if (score >= 3) return AppColors.sunset;
+  return AppColors.bad;
+}
 
-String scoreLabel(int score) =>
-    score >= 8 ? 'Harika' : (score >= 5 ? 'İdare eder' : 'Önerilmez');
+String scoreLabel(int score) {
+  if (score >= 9) return 'Harika';
+  if (score >= 7) return 'İyi';
+  if (score >= 5) return 'İdare eder, hazırlıklı çık';
+  if (score >= 3) return 'Zor';
+  return 'Önerilmez';
+}
+
+String activityName(String activity) => activity == 'walk'
+    ? 'Yürüyüş'
+    : (activity == 'both' ? 'Bisiklet ve Yürüyüş' : 'Bisiklet');
+
+
+
+class Tip {
+  final String type;
+  final String text;
+  const Tip(this.type, this.text);
+
+  factory Tip.fromJson(Map<String, dynamic> json) =>
+      Tip(json['type'] as String, json['text'] as String);
+}
+
+IconData tipIcon(String type) {
+  switch (type) {
+    case 'temperature':
+      return Icons.thermostat;
+    case 'wind':
+      return Icons.air;
+    case 'rain':
+      return Icons.umbrella;
+    case 'sun':
+      return Icons.wb_sunny;
+    case 'visibility':
+      return Icons.flashlight_on;
+    case 'safety':
+      return Icons.health_and_safety;
+    default:
+      return Icons.info_outline;
+  }
+}

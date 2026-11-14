@@ -15,6 +15,7 @@ class AppColors {
   static const sunset = Color(0xFFE8833A);
 
   static const good = Color(0xFF2E9E6A);
+  static const fair = Color(0xFF8DB64A);
   static const okay = Color(0xFFE8A53A);
   static const bad = Color(0xFFD9534F);
 

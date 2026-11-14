@@ -1,34 +1,67 @@
-def score_hour(feels_like, wind, rain_prob, uv, activity):
+WINDOW_HOURS = 2     # önerilen zaman aralığının uzunluğu
+GOOD_SCORE = 7       # "İyi" ve üstü
+
+
+def temperature_penalty(feels_like, bike):
+    """Hissedilen sıcaklığa göre puan kesintisi. 18-24°C ideal."""
+    if feels_like > 36:
+        return 7
+    if feels_like > 32:
+        return 5
+    if feels_like > 28:
+        return 3
+    if feels_like > 24:
+        return 1
+    if feels_like >= 18:
+        return 0
+    # Soğuk: bisiklette hız rüzgârı yüzünden daha çok hissedilir
+    if feels_like >= 15:
+        return 1 if bike else 0
+    if feels_like >= 12:
+        return 2 if bike else 1
+    if feels_like >= 8:
+        return 4 if bike else 1
+    if feels_like >= 4:
+        return 6 if bike else 2
+    if feels_like >= 0:
+        return 8 if bike else 4
+    return 9 if bike else 6
+
+
+def is_dark(hour):
+    return hour < 7 or hour >= 18
+
+
+def score_hour(feels_like, wind, rain_prob, uv, activity, hour=12):
     """Bir saatin bisiklet veya yürüyüş için uygunluk skoru (0-10)."""
     bike = activity == "bike"
-    score = 10
+    score = 10 - temperature_penalty(feels_like, bike)
 
-    # Sıcaklık
-    if feels_like > 32:
-        score -= 4
-    elif feels_like >= 27:
-        score -= 2
-    elif feels_like <= 12 and bike:
-        score -= 3
-
-    # Yağmur
-    heavy_rain = rain_prob > 60
-    light_rain = 30 <= rain_prob <= 60
-    if heavy_rain:
-        score -= 5 if bike else 3
-    elif light_rain:
+    # Karanlık
+    if is_dark(hour):
         score -= 2 if bike else 1
 
     # Rüzgâr
-    strong_wind = wind > 30
-    moderate_wind = 20 <= wind <= 30
-    if strong_wind:
-        score -= 4 if bike else 1
-    elif moderate_wind and bike:
-        score -= 2
+    if wind > 35:
+        score -= 5 if bike else 2
+    elif wind >= 25:
+        score -= 3 if bike else 1
+    elif wind >= 15 and bike:
+        score -= 1
 
-    # Fırtına: yüksek yağmur + sert rüzgâr birlikte
-    if heavy_rain and strong_wind:
+    # Soğuk + rüzgâr birlikte daha çok üşütür
+    if feels_like < 10 and wind >= 20:
+        score -= 1
+
+    # Yağmur
+    heavy_rain = rain_prob > 60
+    if heavy_rain:
+        score -= 5 if bike else 3
+    elif rain_prob >= 30:
+        score -= 2 if bike else 1
+
+    # Fırtına: yoğun yağmur + sert rüzgâr
+    if heavy_rain and wind > 35:
         score -= 2 if bike else 3
 
     # UV
@@ -40,32 +73,25 @@ def score_hour(feels_like, wind, rain_prob, uv, activity):
     return max(score, 0)
 
 
-def best_window(times, scores, threshold=8):
-    """Gündüz saatlerinde art arda en uzun iyi aralığı bulur (başlangıç, bitiş).
-    06-16 arasında başlayan aralıklar öncelikli."""
-    windows = []
-    start = None
-    for i in range(len(times)):
-        hour = int(times[i][11:13])
-        good = 6 <= hour < 21 and scores[i] >= threshold
-        if good and start is None:
-            start = i
-        elif not good and start is not None:
-            windows.append((start, i))
-            start = None
-    if start is not None:
-        windows.append((start, len(times)))
-
-    if not windows:
+def best_window(times, scores, start=0, threshold=GOOD_SCORE, length=WINDOW_HOURS):
+    """start'tan itibaren 06:00-22:00 arasında ortalaması en yüksek 2 saatlik pencere.
+    Eşitlikte en erken pencere. Hiçbiri threshold'a ulaşmazsa None."""
+    best = None
+    for i in range(start, len(times) - length + 1):
+        first_hour = int(times[i][11:13])
+        last_hour = int(times[i + length - 1][11:13])
+        if first_hour < 6 or last_hour >= 22 or last_hour < first_hour:
+            continue
+        avg = sum(scores[i:i + length]) / length
+        if avg >= threshold and (best is None or avg > best[0]):
+            best = (avg, i)
+    if best is None:
         return None
-
-    early = [w for w in windows if int(times[w[0]][11:13]) < 16]
-    pool = early if early else windows
-    return max(pool, key=lambda w: w[1] - w[0])
+    return best[1], best[1] + length
 
 
 def window_label(times, start, end):
-    """(start, end) aralığını '10:00–13:00' gibi yazıya çevirir."""
+    """(start, end) aralığını '10:00–12:00' gibi yazıya çevirir."""
     end_hour = int(times[end - 1][11:13]) + 1
     return f"{times[start][11:16]}–{end_hour:02d}:00"
 
@@ -85,3 +111,71 @@ def window_warnings(feels_like, rain_prob, uv, start, end):
     elif highest_uv >= 3:
         notes.append(f"UV {highest_uv:.0f}, güneş kremi ve şapka önerilir")
     return notes
+
+
+def clothing_tips(feels_like, wind, rain_prob, uv, activity, hour):
+    """O saatin havasına göre öneriler: [{"type": ..., "text": ...}].
+    Her tür sadece o koşul varsa eklenir; gündüz ve gece metinleri farklıdır."""
+    bike = activity == "bike"
+    night = is_dark(hour)
+    tips = []
+
+    def add(kind, day_text, night_text=None):
+        tips.append({"type": kind, "text": night_text if (night and night_text) else day_text})
+
+    # Sıcaklık
+    if feels_like < 5:
+        add("temperature",
+            "Mont, bere ve eldiven giy" + (", boynunu da ört" if bike else ""),
+            "Mont, bere, eldiven ve atkı; gece hava daha da soğuyacak")
+    elif feels_like < 10:
+        add("temperature",
+            "Kalın ceket giy, kat kat giyin" + ("; eldiven al" if bike else ""),
+            "Kalın mont giy; gece sıcaklık düşmeye devam ediyor")
+    elif feels_like < 15:
+        add("temperature",
+            "Rüzgârlık al" if bike else "İnce bir ceket ya da hırka al",
+            "Üstüne bir kat daha al; gece serinliyor")
+    elif feels_like > 30:
+        add("temperature",
+            "Öğlen saatlerinden kaçın; bol su al, gölgede mola ver",
+            "Hava hâlâ sıcak; yanına bol su al")
+    elif feels_like > 25:
+        add("temperature",
+            "İnce, açık renkli giysiler giy ve su al",
+            "Hafif giysiler yeterli; su almayı unutma")
+
+    # Rüzgâr
+    if wind >= 20:
+        w = f"Rüzgâr {wind:.0f} km/s: "
+        if bike:
+            add("wind", w + "rüzgâra karşı vites küçült, yavaş sür",
+                w + "karanlıkta ani rüzgâra dikkat, yavaş sür")
+        else:
+            add("wind", w + "rüzgârlık giy, şapkanı sabitle",
+                w + "rüzgârlık giy, açık alanlardan kaçın")
+
+    # Yağmur
+    if rain_prob >= 30:
+        if bike:
+            add("rain", "Yağmurluk giy; ıslak zeminde fren mesafesi uzar",
+                "Yağmurluk giy; ıslak zemin ve karanlık, hızını düşür")
+        else:
+            add("rain", "Şemsiye veya yağmurluk al, su geçirmez ayakkabı giy",
+                "Şemsiye al; ıslak zeminde kaymayan ayakkabı giy, görünür ol")
+
+    # Güneş (gece UV 0 olduğu için kendiliğinden çıkmaz)
+    if uv >= 6:
+        add("sun", "Güneş kremi, şapka ve güneş gözlüğü; 12:00-15:00 arası gölgede kal")
+    elif uv >= 3:
+        add("sun", "Güneş kremi ve şapka")
+
+    # Görünürlük
+    if night:
+        add("visibility", "Ön ve arka lamba, reflektörlü yelek" if bike
+            else "Açık renkli ya da reflektörlü giysi, fener; aydınlık yolları seç")
+
+    # Güvenlik
+    if bike:
+        add("safety", "Kaskını tak")
+    return tips
