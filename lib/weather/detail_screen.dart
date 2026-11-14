@@ -1,3 +1,4 @@
+import 'home_screen.dart' show weatherBackground;
 import 'package:flutter/material.dart';
 
 import 'weather_model.dart';
@@ -8,14 +9,15 @@ class DetailScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final hours = data.hourly.where((h) {
-      final hour = int.parse(h.time.substring(0, 2));
-      return hour >= 6 && hour < 21;
-    }).toList();
+    final hours = data.hourly;
     final title = data.activity == 'bike' ? 'Bisiklet' : 'Yürüyüş';
 
     return Scaffold(
-      appBar: AppBar(title: Text('Saatlik detay · $title')),
+            backgroundColor: weatherBackground,
+      appBar: AppBar(
+        backgroundColor: weatherBackground,
+        title: Text('Saatlik detay · $title'),
+      ),
       body: ListView.separated(
         padding: const EdgeInsets.all(16),
         itemCount: hours.length,
@@ -72,18 +74,40 @@ class _HourRow extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 4),
-          Padding(
+                    Padding(
             padding: const EdgeInsets.only(left: 56),
-            child: Text(
-              '🌡 ${hour.feelsLike.toStringAsFixed(0)}°C   '
-              '💨 ${hour.wind.toStringAsFixed(0)} km/s   '
-              '☔ %${hour.rainProb}   '
-              '☀️ UV ${hour.uv.toStringAsFixed(0)}',
-              style: Theme.of(context).textTheme.bodySmall,
+            child: Wrap(
+              spacing: 14,
+              runSpacing: 4,
+              children: [
+                _Info(Icons.thermostat, '${hour.feelsLike.toStringAsFixed(0)}°C'),
+                _Info(Icons.air, '${hour.wind.toStringAsFixed(0)} km/s'),
+                _Info(Icons.umbrella, '%${hour.rainProb}'),
+                _Info(Icons.wb_sunny, 'UV ${hour.uv.toStringAsFixed(0)}'),
+              ],
             ),
           ),
         ],
       ),
+    );
+  }
+}
+
+
+class _Info extends StatelessWidget {
+  final IconData icon;
+  final String text;
+  const _Info(this.icon, this.text);
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey.shade700),
+        const SizedBox(width: 4),
+        Text(text, style: Theme.of(context).textTheme.bodySmall),
+      ],
     );
   }
 }

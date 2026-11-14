@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from app.weather.client import get_hourly
-from app.weather.scoring import best_window, score_hour, window_label, window_warnings
+from app.weather.scoring import best_window, clothing_tips, score_hour, window_label, window_warnings
 
 
 class UTF8JSONResponse(JSONResponse):
@@ -37,24 +37,33 @@ def get_score(
     wind = h["wind_speed_10m"]
     rain = h["precipitation_probability"]
     uv = h["uv_index"]
+    hours = [int(t[11:13]) for t in times]
 
-    scores = [score_hour(feels[i], wind[i], rain[i], uv[i], activity) for i in range(len(times))]
+    scores = [score_hour(feels[i], wind[i], rain[i], uv[i], activity, hours[i])
+              for i in range(len(times))]
 
     now_key = datetime.now(ZoneInfo("Europe/Istanbul")).strftime("%Y-%m-%dT%H:00")
     now_i = times.index(now_key) if now_key in times else None
 
-    window = best_window(times, scores)
+    # Bugün için sadece şu andan sonrasına bak
+    start = now_i if (day == "today" and now_i is not None) else 0
+    window = best_window(times, scores, start=start)
     best, warnings = None, []
     if window:
-        start, end = window
-        label = window_label(times, start, end)
+        w_start, w_end = window
+        label = window_label(times, w_start, w_end)
         best = {"start": label[:5], "end": label[-5:]}
-        warnings = window_warnings(feels, rain, uv, start, end)
+        warnings = window_warnings(feels, rain, uv, w_start, w_end)
 
     return {
         "activity": activity,
         "day": day,
-        "now": {"time": times[now_i][11:16], "score": scores[now_i]} if now_i is not None else None,
+        "now": {
+            "time": times[now_i][11:16],
+            "score": scores[now_i],
+            "tips": clothing_tips(feels[now_i], wind[now_i], rain[now_i], uv[now_i],
+                                  activity, hours[now_i]),
+        } if now_i is not None else None,
         "best_window": best,
         "warnings": warnings,
         "hourly": [

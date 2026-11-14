@@ -1,12 +1,17 @@
 import 'package:flutter/material.dart';
 
-import 'weather_model.dart';
-import 'weather_service.dart';
 import 'detail_screen.dart';
 import 'notification_service.dart';
+import 'weather_model.dart';
+import 'weather_service.dart';
+
+const weatherBackground = Color(0xFFF5F4F2);
 
 class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+  const HomeScreen({super.key, this.activity = 'bike'});
+
+  /// 'bike', 'walk' veya 'both'
+  final String activity;
 
   @override
   State<HomeScreen> createState() => _HomeScreenState();
@@ -14,8 +19,10 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   final _service = WeatherService();
-  String _activity = 'bike';
-  late Future<WeatherScore> _future;
+  late Future<List<WeatherScore>> _future;
+
+  List<String> get _activities =>
+      widget.activity == 'both' ? ['bike', 'walk'] : [widget.activity];
 
   @override
   void initState() {
@@ -24,19 +31,21 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   void _load() {
-    _future = _service.getScore(
-      lat: WeatherService.muglaLat,
-      lon: WeatherService.muglaLon,
-      activity: _activity,
-    );
-        NotificationService.scheduleAll(_activity).catchError((_) {});
+    _future = Future.wait(_activities.map((a) => _service.getScore(
+          lat: WeatherService.muglaLat,
+          lon: WeatherService.muglaLon,
+          activity: a,
+        )));
+    NotificationService.scheduleAll(_activities.first).catchError((_) {});
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-            appBar: AppBar(
-        title: const Text('Bugün · Muğla'),
+      backgroundColor: weatherBackground,
+      appBar: AppBar(
+        backgroundColor: weatherBackground,
+        title: Text('Bugün · ${activityName(widget.activity)}'),
         actions: [
           IconButton(
             icon: const Icon(Icons.notifications_active),
@@ -45,52 +54,47 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ],
       ),
-      body: Column(
-        children: [
-          Padding(
+      body: FutureBuilder<List<WeatherScore>>(
+        future: _future,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState != ConnectionState.done) {
+            return const Center(child: CircularProgressIndicator());
+          }
+          if (snapshot.hasError) {
+            return _ErrorView(onRetry: () => setState(_load));
+          }
+          final results = snapshot.data!;
+          return ListView(
             padding: const EdgeInsets.all(16),
-            child: SegmentedButton<String>(
-              segments: const [
-                ButtonSegment(value: 'bike', label: Text('Bisiklet'), icon: Icon(Icons.directions_bike)),
-                ButtonSegment(value: 'walk', label: Text('Yürüyüş'), icon: Icon(Icons.directions_walk)),
-              ],
-              selected: {_activity},
-              onSelectionChanged: (s) => setState(() {
-                _activity = s.first;
-                _load();
-              }),
-            ),
-          ),
-          Expanded(
-            child: FutureBuilder<WeatherScore>(
-              future: _future,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState != ConnectionState.done) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-                if (snapshot.hasError) {
-                  return _ErrorView(onRetry: () => setState(_load));
-                }
-                return _ScoreView(data: snapshot.data!);
-              },
-            ),
-          ),
-        ],
+            children: [
+              for (final data in results)
+                _ActivitySection(data: data, showTitle: results.length > 1),
+            ],
+          );
+        },
       ),
     );
   }
 }
 
-class _ScoreView extends StatelessWidget {
+class _ActivitySection extends StatelessWidget {
   final WeatherScore data;
-  const _ScoreView({required this.data});
+  final bool showTitle;
+  const _ActivitySection({required this.data, required this.showTitle});
 
   @override
   Widget build(BuildContext context) {
     final score = data.nowScore;
-    return ListView(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
+
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (showTitle)
+          Padding(
+            padding: const EdgeInsets.symmetric(vertical: 8),
+            child: Text(activityName(data.activity),
+                style: Theme.of(context).textTheme.titleLarge),
+          ),
         Card(
           child: Padding(
             padding: const EdgeInsets.all(24),
@@ -103,7 +107,7 @@ class _ScoreView extends StatelessWidget {
                   style: TextStyle(
                     fontSize: 56,
                     fontWeight: FontWeight.bold,
-                    color: score == null ? null : scoreColor(score),
+                    color: score == null ? Colors.grey : scoreColor(score),
                   ),
                 ),
                 if (score != null) Text(scoreLabel(score)),
@@ -111,16 +115,54 @@ class _ScoreView extends StatelessWidget {
             ),
           ),
         ),
+                if (data.nowTips.isNotEmpty)
+          Card(
+            child: Padding(
+              padding: const EdgeInsets.all(16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Row(
+                    children: [
+                      Icon(Icons.backpack, size: 20),
+                      SizedBox(width: 8),
+                      Text('Bunları unutma', style: TextStyle(fontWeight: FontWeight.bold)),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  for (final tip in data.nowTips)
+                    Padding(
+                      padding: const EdgeInsets.symmetric(vertical: 4),
+                      child: Row(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Icon(tipIcon(tip.type), size: 18, color: Colors.teal),
+                          const SizedBox(width: 10),
+                          Expanded(child: Text(tip.text)),
+                        ],
+                      ),
+                    ),
+                ],
+              ),
+            ),
+          ),
         Card(
           child: ListTile(
             leading: const Icon(Icons.schedule),
-            title: const Text('Bugünün en iyi zamanı'),
+            title: const Text('Sıradaki en iyi zaman'),
             subtitle: Text(data.bestStart == null
-                ? 'Bugün uygun saat yok'
+                ? 'Bugün için uygun saat kalmadı, yarına bak'
                 : '${data.bestStart} – ${data.bestEnd}'),
           ),
         ),
-        Card(                                              // ← YENİ
+        for (final warning in data.warnings)
+          Card(
+            child: ListTile(
+              leading: const Icon(Icons.warning_amber, color: Colors.orange),
+              title: Text(warning),
+            ),
+          ),
+        Card(
           child: ListTile(
             leading: const Icon(Icons.bar_chart),
             title: const Text('Saatlik detay'),
@@ -130,14 +172,8 @@ class _ScoreView extends StatelessWidget {
               MaterialPageRoute(builder: (_) => DetailScreen(data: data)),
             ),
           ),
-        ),     
-        for (final warning in data.warnings)
-          Card(
-            child: ListTile(
-              leading: const Icon(Icons.warning_amber, color: Colors.orange),
-              title: Text(warning),
-            ),
-          ),
+        ),
+        const SizedBox(height: 16),
       ],
     );
   }

@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-
+import '../weather/home_screen.dart' as weather;
 class TodayScreen extends StatelessWidget {
   const TodayScreen({
     super.key,
@@ -124,7 +124,16 @@ class TodayScreen extends StatelessWidget {
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
-                onPressed: () {},
+                onPressed: () => Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (_) => weather.HomeScreen(
+                    activity: selectedActivity == 'Yürüyüş'
+                          ? 'walk'
+                          : (selectedActivity == 'İkisi de' ? 'both' : 'bike'),
+                    ),
+                  ),
+                ),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFF1D7A68),
                   foregroundColor: Colors.white,

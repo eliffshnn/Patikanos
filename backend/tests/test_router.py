@@ -11,7 +11,7 @@ def fake_hourly(days, feels_by_day=(18.0, 35.0)):
     times, feels = [], []
     for d in range(days):
         for h in range(24):
-            times.append(f"2026-11-{14 + d:02d}T{h:02d}:00")
+            times.append(f"2000-01-{1 + d:02d}T{h:02d}:00")
             feels.append(feels_by_day[d])
     n = len(times)
     return {
@@ -44,8 +44,9 @@ def test_score_today(client):
     assert r.status_code == 200
     body = r.json()
     assert len(body["hourly"]) == 24
-    assert all(h["score"] == 10 for h in body["hourly"])
-    assert body["best_window"] == {"start": "06:00", "end": "21:00"}
+    assert body["hourly"][12]["score"] == 10      # gündüz, 18°C
+    assert body["hourly"][22]["score"] == 8       # karanlık
+    assert body["best_window"] == {"start": "07:00", "end": "09:00"}
     assert client.calls == [1]
 
 
@@ -57,7 +58,8 @@ def test_score_tomorrow_uses_second_day(client):
     assert client.calls == [2]
     assert body["now"] is None
     assert len(body["hourly"]) == 24
-    assert all(h["feels_like"] == 35.0 and h["score"] == 6 for h in body["hourly"])
+    assert all(h["feels_like"] == 35.0 for h in body["hourly"])
+    assert body["hourly"][12]["score"] == 5
 
 
 def test_open_meteo_down_returns_503(monkeypatch, client):
