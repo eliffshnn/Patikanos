@@ -1,81 +1,79 @@
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 
-/// Haritada gösterilecek tek bir rota başlangıç noktası.
-class _RoutePin {
-  _RoutePin({
-    required this.name,
-    required this.region,
-    required this.isCycling,
-    required this.distanceKm,
-    required this.point,
-  });
-
-  final String name;
-  final String region;
-  final bool isCycling;
-  final double distanceKm;
-  final LatLng point;
-}
+import '../data/route_model.dart';
+import '../theme/app_theme.dart';
+import '../widgets/route_card.dart';
+import 'route_detail_screen.dart';
 
 /// Harita ekranı (#34): Muğla haritası, 16 rotanın başlangıç noktaları
-/// ve OpenStreetMap atfı (#35). Rotalar docs/routes.geojson dosyasından okunur.
-class MapScreen extends StatefulWidget {
+/// ve OpenStreetMap atfı (#35). Rotalar RouteRepository'den okunur.
+class MapScreen extends StatelessWidget {
   const MapScreen({super.key});
 
-  @override
-  State<MapScreen> createState() => _MapScreenState();
-}
+  LatLng _start(TrailRoute r) => LatLng(r.startLat, r.startLon);
 
-class _MapScreenState extends State<MapScreen> {
-  // Muğla ilinin yaklaşık ortası
-  static const LatLng _muglaCenter = LatLng(37.0, 28.3);
-
-  late final Future<List<_RoutePin>> _pinsFuture = _loadPins();
-
-  Future<List<_RoutePin>> _loadPins() async {
-    final raw = await rootBundle.loadString('docs/routes.geojson');
-    final data = jsonDecode(raw) as Map<String, dynamic>;
-    final features = data['features'] as List<dynamic>;
-
-    final pins = <_RoutePin>[];
-    for (final f in features) {
-      final p = (f as Map<String, dynamic>)['properties'] as Map<String, dynamic>;
-      final start = p['start'] as List<dynamic>?; // [boylam, enlem]
-      if (start == null || start.length < 2) continue;
-      final activity = (p['activity'] as List<dynamic>? ?? []).cast<String>();
-      pins.add(_RoutePin(
-        name: p['name'] as String? ?? '',
-        region: p['region'] as String? ?? '',
-        isCycling: activity.contains('cycling'),
-        distanceKm: (p['distance_km'] as num?)?.toDouble() ?? 0,
-        point: LatLng(
-          (start[1] as num).toDouble(),
-          (start[0] as num).toDouble(),
-        ),
-      ));
-    }
-    return pins;
-  }
-
-  void _showPin(_RoutePin pin) {
+  void _showRoute(BuildContext context, TrailRoute route) {
     showModalBottomSheet<void>(
       context: context,
-      builder: (context) => Padding(
-        padding: const EdgeInsets.fromLTRB(20, 20, 20, 32),
+      backgroundColor: AppColors.surface,
+      showDragHandle: true,
+      builder: (sheetContext) => Padding(
+        padding: const EdgeInsets.fromLTRB(20, 0, 20, 28),
         child: Column(
           mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            Text(pin.name, style: Theme.of(context).textTheme.titleMedium),
-            const SizedBox(height: 8),
-            Text(
-              '${pin.region} • ${pin.isCycling ? 'Bisiklet' : 'Yürüyüş'} • '
-              '${pin.distanceKm.toStringAsFixed(1)} km',
+            Row(
+              children: [
+                RouteThumb(route: route, size: 64),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Row(
+                        children: [
+                          const Icon(Icons.place_outlined, size: 13, color: AppColors.sea),
+                          const SizedBox(width: 2),
+                          Text(
+                            route.region,
+                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.sea),
+                          ),
+                          const SizedBox(width: 8),
+                          DifficultyPill(difficulty: route.difficulty),
+                        ],
+                      ),
+                      const SizedBox(height: 4),
+                      Text(route.name, style: Theme.of(sheetContext).textTheme.titleMedium),
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 12,
+                        runSpacing: 4,
+                        children: [
+                          InfoChip(icon: Icons.straighten_rounded, label: '${route.distanceKm.toStringAsFixed(1)} km'),
+                          InfoChip(icon: Icons.trending_up_rounded, label: '${route.elevationGainM} m'),
+                          InfoChip(icon: Icons.schedule_rounded, label: formatDuration(route.durationMin)),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+                FavoriteButton(routeId: route.id),
+              ],
+            ),
+            const SizedBox(height: 18),
+            FilledButton.icon(
+              onPressed: () {
+                Navigator.pop(sheetContext);
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(builder: (_) => RouteDetailScreen(route: route)),
+                );
+              },
+              icon: const Icon(Icons.arrow_forward_rounded),
+              label: const Text('Rota detayını aç'),
             ),
           ],
         ),
@@ -85,59 +83,241 @@ class _MapScreenState extends State<MapScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<List<_RoutePin>>(
-      future: _pinsFuture,
+    return FutureBuilder<List<TrailRoute>>(
+      future: RouteRepository.load(),
       builder: (context, snapshot) {
         if (snapshot.hasError) {
           return Center(child: Text('Rotalar yüklenemedi: ${snapshot.error}'));
         }
-        final pins = snapshot.data ?? [];
+        if (!snapshot.hasData) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final routes = snapshot.data!;
 
-        return FlutterMap(
-          options: const MapOptions(
-            initialCenter: _muglaCenter,
-            initialZoom: 8.5,
-          ),
+        return Stack(
           children: [
-            TileLayer(
-              urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-              userAgentPackageName: 'com.example.patikanos',
-            ),
-            MarkerLayer(
-              markers: [
-                for (final pin in pins)
-                  Marker(
-                    point: pin.point,
-                    width: 40,
-                    height: 40,
-                    child: GestureDetector(
-                      onTap: () => _showPin(pin),
-                      child: Icon(
-                        pin.isCycling ? Icons.directions_bike : Icons.hiking,
-                        size: 32,
-                        color: pin.isCycling
-                            ? const Color(0xFF1D5FA8)
-                            : const Color(0xFF1D7A68),
-                      ),
-                    ),
-                  ),
-              ],
-            ),
-            // #35: OpenStreetMap atfı
-            Align(
-              alignment: Alignment.bottomRight,
-              child: Container(
-                color: Colors.white70,
-                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-                child: const Text(
-                  '© OpenStreetMap contributors',
-                  style: TextStyle(fontSize: 11, color: Colors.black87),
+            FlutterMap(
+              options: MapOptions(
+                // Bütün başlangıç noktaları ekrana sığacak şekilde açılır.
+                initialCameraFit: CameraFit.coordinates(
+                  coordinates: routes.map(_start).toList(),
+                  padding: const EdgeInsets.fromLTRB(40, 110, 40, 40),
                 ),
               ),
+              children: [
+                TileLayer(
+                  urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                  userAgentPackageName: 'com.example.patikanos',
+                ),
+                _ClusteredMarkers(
+                  routes: routes,
+                  pointOf: _start,
+                  onRouteTap: (r) => _showRoute(context, r),
+                ),
+                // #35: OpenStreetMap atfı
+                Align(
+                  alignment: Alignment.bottomRight,
+                  child: Container(
+                    margin: const EdgeInsets.all(8),
+                    padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                    decoration: BoxDecoration(
+                      color: AppColors.surface.withValues(alpha: 0.85),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: const Text(
+                      '© OpenStreetMap contributors',
+                      style: TextStyle(fontSize: 11, color: AppColors.ink),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Positioned(
+              left: 16,
+              right: 16,
+              top: 12,
+              child: _MapHeader(count: routes.length),
             ),
           ],
         );
       },
+    );
+  }
+}
+
+/// Ekranda birbirine çok yakın düşen başlangıç noktalarını tek bir sayı balonunda toplar.
+/// Kamera değiştikçe (yakınlaştırma) yeniden hesaplanır; balona dokununca o rotalara yakınlaşır.
+class _ClusteredMarkers extends StatelessWidget {
+  const _ClusteredMarkers({required this.routes, required this.pointOf, required this.onRouteTap});
+
+  final List<TrailRoute> routes;
+  final LatLng Function(TrailRoute) pointOf;
+  final ValueChanged<TrailRoute> onRouteTap;
+
+  static const _markerSize = 36.0;
+
+  @override
+  Widget build(BuildContext context) {
+    final camera = MapCamera.of(context);
+
+    // Basit açgözlü gruplama: her rota, ekranda işaret boyundan yakın olduğu ilk gruba girer.
+    final clusters = <List<TrailRoute>>[];
+    final centers = <Offset>[];
+    for (final r in routes) {
+      final p = camera.projectAtZoom(pointOf(r));
+      final i = centers.indexWhere((c) => (c - p).distance < _markerSize);
+      if (i == -1) {
+        clusters.add([r]);
+        centers.add(p);
+      } else {
+        clusters[i].add(r);
+      }
+    }
+
+    return MarkerLayer(
+      markers: [
+        for (final group in clusters)
+          if (group.length == 1)
+            Marker(
+              point: pointOf(group.single),
+              width: _markerSize,
+              height: _markerSize,
+              child: _RouteMarker(route: group.single, onTap: () => onRouteTap(group.single)),
+            )
+          else
+            Marker(
+              point: _average(group.map(pointOf)),
+              width: _markerSize + 4,
+              height: _markerSize + 4,
+              child: _ClusterMarker(
+                count: group.length,
+                onTap: () => MapController.of(context).fitCamera(
+                  CameraFit.coordinates(
+                    coordinates: group.map(pointOf).toList(),
+                    padding: const EdgeInsets.all(120),
+                    maxZoom: 14,
+                  ),
+                ),
+              ),
+            ),
+      ],
+    );
+  }
+
+  static LatLng _average(Iterable<LatLng> points) {
+    var lat = 0.0, lon = 0.0;
+    for (final p in points) {
+      lat += p.latitude;
+      lon += p.longitude;
+    }
+    return LatLng(lat / points.length, lon / points.length);
+  }
+}
+
+class _ClusterMarker extends StatelessWidget {
+  const _ClusterMarker({required this.count, required this.onTap});
+
+  final int count;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: AppColors.sunset,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2.5),
+          boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 2))],
+        ),
+        child: Text(
+          '$count',
+          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+        ),
+      ),
+    );
+  }
+}
+
+class _RouteMarker extends StatelessWidget {
+  const _RouteMarker({required this.route, required this.onTap});
+
+  final TrailRoute route;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final cycling = route.isCycling && !route.isWalking;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        decoration: BoxDecoration(
+          color: cycling ? AppColors.sea : AppColors.pine,
+          shape: BoxShape.circle,
+          border: Border.all(color: Colors.white, width: 2.5),
+          boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 2))],
+        ),
+        child: Icon(
+          cycling ? Icons.directions_bike_rounded : Icons.hiking_rounded,
+          size: 18,
+          color: Colors.white,
+        ),
+      ),
+    );
+  }
+}
+
+class _MapHeader extends StatelessWidget {
+  const _MapHeader({required this.count});
+
+  final int count;
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+      decoration: BoxDecoration(
+        color: AppColors.surface,
+        borderRadius: BorderRadius.circular(18),
+        boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 12, offset: Offset(0, 3))],
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text('Harita', style: Theme.of(context).textTheme.titleLarge),
+                Text('Muğla\'da $count rota', style: Theme.of(context).textTheme.bodySmall),
+              ],
+            ),
+          ),
+          const _LegendDot(color: AppColors.pine, label: 'Yürüyüş'),
+          const SizedBox(width: 12),
+          const _LegendDot(color: AppColors.sea, label: 'Bisiklet'),
+        ],
+      ),
+    );
+  }
+}
+
+class _LegendDot extends StatelessWidget {
+  const _LegendDot({required this.color, required this.label});
+
+  final Color color;
+  final String label;
+
+  @override
+  Widget build(BuildContext context) {
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
+        const SizedBox(width: 5),
+        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
+      ],
     );
   }
 }

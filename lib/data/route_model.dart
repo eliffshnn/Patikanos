@@ -1,5 +1,6 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
 
 /// Bir rota; alanlar docs/route-data-format.md ile aynı.
@@ -78,6 +79,10 @@ class RouteRepository {
 
   /// Sprint 3: rotalar uygulamayla birlikte gelen GeoJSON'dan okunur (Sprint 4'te /routes API'si).
   static Future<List<TrailRoute>> load() => _cache ??= _read();
+
+  /// Her widget testi kendi sahte zamanında çalışır; önceki testin Future'ı orada tamamlanmaz.
+  @visibleForTesting
+  static void clearCache() => _cache = null;
 
   static Future<List<TrailRoute>> _read() async {
     final raw = await rootBundle.loadString('docs/routes.geojson');
