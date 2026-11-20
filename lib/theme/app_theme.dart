@@ -87,11 +87,10 @@ class AppText {
 }
 
 /// Uygulamadaki fotoğraflar. Rotaya özel fotoğraf olmadığı için bunlar sadece atmosfer görseli olarak
-/// kullanılır (Bugün, hava durumu, profil); rota kartlarında rotanın gerçek haritası gösterilir.
+/// kullanılır (Bugün, hava durumu); rota kartlarında rotanın gerçek haritası gösterilir.
 class AppImages {
   static const coast = 'assets/onboarding/coast-hike.jpg';
   static const forest = 'assets/onboarding/forest-bike.jpg';
-  static const sunset = 'assets/onboarding/sunset-climb.jpg';
 
   /// Hava durumu kartının arka planı: bisiklette orman yolu, yürüyüşte sahil patikası
   static String forActivity(String activity) => activity == 'bike' ? forest : coast;

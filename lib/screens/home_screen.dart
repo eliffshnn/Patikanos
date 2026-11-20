@@ -46,6 +46,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   Widget build(BuildContext context) {
     final pages = [
+      // Bugün fotoğrafla başlar; üst boşluğu kendisi ayarlar
       TodayScreen(
         selectedActivity: _selectedActivity,
         onActivitySelected: _onActivitySelected,
@@ -54,8 +55,7 @@ class _HomeScreenState extends State<HomeScreen> {
       const _Plain(child: ExploreScreen()),
       const _Plain(child: MapScreen()),
       _Plain(child: FavoritesScreen(onExplore: () => _onNavTapped(_exploreIndex))),
-      // Bugün ve Profil fotoğrafla başlar; üst boşluğu kendileri ayarlar
-      const ProfileScreen(),
+      const _Plain(child: ProfileScreen()),
     ];
 
     return Scaffold(

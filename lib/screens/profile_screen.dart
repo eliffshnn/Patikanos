@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 
 import '../data/favorites.dart';
 import '../data/user_service.dart';
 import '../theme/app_theme.dart';
-import '../widgets/nature.dart';
 import 'onboarding_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
@@ -14,126 +12,112 @@ class ProfileScreen extends StatelessWidget {
   Widget build(BuildContext context) {
     final textTheme = Theme.of(context).textTheme;
 
-    final top = MediaQuery.of(context).padding.top;
-
-    return AnnotatedRegion<SystemUiOverlayStyle>(
-      value: SystemUiOverlayStyle.light,
-      child: ListView(
-        padding: const EdgeInsets.only(bottom: 24),
-        children: [
-          PhotoHeader(
-            image: AppImages.sunset,
-            alignment: const Alignment(0.16, -0.3),
-            height: 330 + top,
-            child: Padding(
-              padding: EdgeInsets.fromLTRB(20, top + 16, 20, 20),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
+    return ListView(
+      padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+      children: [
+        Text('Profil ve Ayarlar', style: textTheme.headlineLarge),
+        const SizedBox(height: 18),
+        Container(
+          padding: const EdgeInsets.all(20),
+          decoration: BoxDecoration(
+            gradient: AppColors.heroGradient,
+            borderRadius: BorderRadius.circular(24),
+          ),
+          child: Column(
+            children: [
+              Row(
                 children: [
-                  Text('Profil ve Ayarlar', style: AppText.screenTitle.copyWith(color: AppColors.onDark)),
-                  const Spacer(),
-                  Row(
-                    children: [
-                      Container(
-                        width: 60,
-                        height: 60,
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: AppColors.glass,
-                          border: Border.all(color: AppColors.glassBorder, width: 2),
-                        ),
-                        child: const Icon(Icons.person_rounded, size: 32, color: AppColors.onDark),
-                      ),
-                      const SizedBox(width: 14),
-                      Expanded(
-                        child: ValueListenableBuilder<SessionData?>(
-                          valueListenable: Session.current,
-                          builder: (context, session, _) {
-                            final name = session?.name ?? '';
-                            final email = session?.email ?? '';
-                            return Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  name.isEmpty ? 'Misafir' : name,
-                                  style: AppText.title.copyWith(color: AppColors.onDark),
-                                ),
-                                const SizedBox(height: 2),
-                                Text(
-                                  session?.userId == null ? '${email.isEmpty ? '' : '$email · '}Hesap oluşturulmadı' : email,
-                                  style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
-                                ),
-                              ],
-                            );
-                          },
-                        ),
-                      ),
-                    ],
+                  Container(
+                    width: 64,
+                    height: 64,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.glass,
+                      border: Border.all(color: AppColors.glassBorder, width: 2),
+                    ),
+                    child: const Icon(Icons.person_rounded, size: 34, color: AppColors.onDark),
                   ),
-                  const SizedBox(height: 16),
-                  ValueListenableBuilder<Set<String>>(
-                    valueListenable: Favorites.ids,
-                    builder: (context, ids, _) => Row(
-                      children: [
-                        _Stat(value: '${ids.length}', label: 'Favori rota'),
-                        const _Stat(value: '0', label: 'Tamamlanan'),
-                        const _Stat(value: '0 km', label: 'Toplam mesafe'),
-                      ],
+                  const SizedBox(width: 16),
+                  Expanded(
+                    child: ValueListenableBuilder<SessionData?>(
+                      valueListenable: Session.current,
+                      builder: (context, session, _) {
+                        final name = session?.name ?? '';
+                        final email = session?.email ?? '';
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name.isEmpty ? 'Misafir' : name,
+                              style: AppText.title.copyWith(color: AppColors.onDark),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              session?.userId == null ? '${email.isEmpty ? '' : '$email · '}Hesap oluşturulmadı' : email,
+                              style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ],
               ),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.fromLTRB(20, 24, 20, 0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-            Text('Tercihler', style: textTheme.titleLarge),
-            const SizedBox(height: 10),
-            _SettingsGroup(
-              children: [
-                ValueListenableBuilder<SessionData?>(
-                  valueListenable: Session.current,
-                  builder: (context, session, _) => _SettingsRow(
-                    icon: Icons.directions_bike_rounded,
-                    label: 'Aktivite tercihi',
-                    value: session?.activity ?? 'Bisiklet',
-                  ),
+              const SizedBox(height: 18),
+              ValueListenableBuilder<Set<String>>(
+                valueListenable: Favorites.ids,
+                builder: (context, ids, _) => Row(
+                  children: [
+                    _Stat(value: '${ids.length}', label: 'Favori rota'),
+                    const _Stat(value: '0', label: 'Tamamlanan'),
+                    const _Stat(value: '0 km', label: 'Toplam mesafe'),
+                  ],
                 ),
-                const _SettingsRow(icon: Icons.thermostat_rounded, label: 'Sıcaklık birimi', value: '°C'),
-                const _SettingsRow(icon: Icons.notifications_none_rounded, label: 'Bildirimler', value: 'Açık'),
-                const _SettingsRow(icon: Icons.language_rounded, label: 'Dil', value: 'Türkçe'),
-              ],
-            ),
-            const SizedBox(height: 24),
-            Text('Uygulama', style: textTheme.titleLarge),
-            const SizedBox(height: 10),
-            const _SettingsGroup(
-              children: [
-                _SettingsRow(icon: Icons.info_outline_rounded, label: 'Hakkında', value: 'v1.0.0'),
-                _SettingsRow(icon: Icons.groups_outlined, label: 'Ekip', value: 'Patikanos'),
-              ],
-            ),
-            const SizedBox(height: 24),
-            OutlinedButton.icon(
-              onPressed: () => _logout(context),
-              icon: const Icon(Icons.logout_rounded),
-              label: const Text('Çıkış yap'),
-              style: OutlinedButton.styleFrom(
-                foregroundColor: AppColors.bad,
-                side: const BorderSide(color: AppColors.bad),
-                minimumSize: const Size.fromHeight(52),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-                textStyle: AppText.button,
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 24),
+        Text('Tercihler', style: textTheme.titleLarge),
+        const SizedBox(height: 10),
+        _SettingsGroup(
+          children: [
+            ValueListenableBuilder<SessionData?>(
+              valueListenable: Session.current,
+              builder: (context, session, _) => _SettingsRow(
+                icon: Icons.directions_bike_rounded,
+                label: 'Aktivite tercihi',
+                value: session?.activity ?? 'Bisiklet',
               ),
             ),
-              ],
-            ),
+            const _SettingsRow(icon: Icons.thermostat_rounded, label: 'Sıcaklık birimi', value: '°C'),
+            const _SettingsRow(icon: Icons.notifications_none_rounded, label: 'Bildirimler', value: 'Açık'),
+            const _SettingsRow(icon: Icons.language_rounded, label: 'Dil', value: 'Türkçe'),
+          ],
+        ),
+        const SizedBox(height: 24),
+        Text('Uygulama', style: textTheme.titleLarge),
+        const SizedBox(height: 10),
+        const _SettingsGroup(
+          children: [
+            _SettingsRow(icon: Icons.info_outline_rounded, label: 'Hakkında', value: 'v1.0.0'),
+            _SettingsRow(icon: Icons.groups_outlined, label: 'Ekip', value: 'Patikanos'),
+          ],
+        ),
+        const SizedBox(height: 24),
+        OutlinedButton.icon(
+          onPressed: () => _logout(context),
+          icon: const Icon(Icons.logout_rounded),
+          label: const Text('Çıkış yap'),
+          style: OutlinedButton.styleFrom(
+            foregroundColor: AppColors.bad,
+            side: const BorderSide(color: AppColors.bad),
+            minimumSize: const Size.fromHeight(52),
+            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+            textStyle: AppText.button,
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 
