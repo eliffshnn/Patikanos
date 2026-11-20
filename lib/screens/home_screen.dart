@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/user_service.dart';
+import '../theme/app_theme.dart';
 
 import 'today_screen.dart';
 import 'explore_screen.dart';
@@ -62,7 +63,7 @@ class _HomeScreenState extends State<HomeScreen> {
       ),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
-          boxShadow: [BoxShadow(color: Color(0x14000000), blurRadius: 16, offset: Offset(0, -2))],
+          boxShadow: AppShadows.soft,
         ),
         child: NavigationBar(
           selectedIndex: _selectedIndex,

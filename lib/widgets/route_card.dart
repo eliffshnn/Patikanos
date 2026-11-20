@@ -24,7 +24,7 @@ class RouteThumb extends StatelessWidget {
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
           colors: cycling
-              ? const [AppColors.sea, Color(0xFF3FA7B5)]
+              ? const [AppColors.sea, AppColors.seaBright]
               : const [AppColors.pineDark, AppColors.pine],
         ),
       ),
@@ -33,12 +33,12 @@ class RouteThumb extends StatelessWidget {
           Positioned(
             right: -size * 0.15,
             bottom: -size * 0.2,
-            child: Icon(Icons.landscape_rounded, size: size * 0.9, color: Colors.white.withValues(alpha: 0.15)),
+            child: Icon(Icons.landscape_rounded, size: size * 0.9, color: AppColors.glass),
           ),
           Center(
             child: Icon(
               cycling ? Icons.directions_bike_rounded : Icons.hiking_rounded,
-              color: Colors.white,
+              color: AppColors.onDark,
               size: size * 0.42,
             ),
           ),
@@ -59,12 +59,12 @@ class DifficultyPill extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 3),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
+        color: AppColors.tint(color),
         borderRadius: BorderRadius.circular(20),
       ),
       child: Text(
         difficultyLabel(difficulty),
-        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: color),
+        style: AppText.eyebrow.copyWith(color: color, letterSpacing: 0.4),
       ),
     );
   }
@@ -119,7 +119,7 @@ class RouteCard extends StatelessWidget {
                         const SizedBox(width: 2),
                         Text(
                           route.region,
-                          style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.sea),
+                          style: AppText.label.copyWith(color: AppColors.sea),
                         ),
                         const SizedBox(width: 8),
                         DifficultyPill(difficulty: route.difficulty),

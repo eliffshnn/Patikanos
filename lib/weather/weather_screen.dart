@@ -142,13 +142,13 @@ class _ActivitySection extends StatelessWidget {
                         value: (score ?? 0) / 10,
                         strokeWidth: 10,
                         strokeCap: StrokeCap.round,
-                        color: score == null ? Colors.white54 : scoreColor(score),
-                        backgroundColor: Colors.white.withValues(alpha: 0.18),
+                        color: score == null ? AppColors.onDarkSubtle : scoreColor(score),
+                        backgroundColor: AppColors.glass,
                       ),
                       Center(
                         child: Text(
                           score == null ? '–' : '$score',
-                          style: AppFonts.display(44, color: Colors.white),
+                          style: AppText.score.copyWith(color: AppColors.onDark),
                         ),
                       ),
                     ],
@@ -161,17 +161,17 @@ class _ActivitySection extends StatelessWidget {
                     children: [
                       Text(
                         'Şu an · ${data.nowTime ?? '-'}',
-                        style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+                        style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         score == null ? 'Skor yok' : scoreLabel(score),
-                        style: AppFonts.display(24, color: Colors.white),
+                        style: AppText.title.copyWith(color: AppColors.onDark),
                       ),
                       const SizedBox(height: 4),
                       Text(
                         '10 üzerinden ${activityName(data.activity).toLowerCase()} uygunluğu',
-                        style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+                        style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
                       ),
                     ],
                   ),
@@ -235,7 +235,7 @@ class _ActivitySection extends StatelessWidget {
                     width: 46,
                     height: 46,
                     decoration: BoxDecoration(
-                      color: AppColors.sunset.withValues(alpha: 0.14),
+                      color: AppColors.tint(AppColors.sunset),
                       borderRadius: BorderRadius.circular(14),
                     ),
                     child: const Icon(Icons.wb_twilight_rounded, color: AppColors.sunset),
@@ -251,7 +251,7 @@ class _ActivitySection extends StatelessWidget {
                             ? Text('Bugün için uygun saat kalmadı, yarına bak', style: textTheme.titleMedium)
                             : Text(
                                 '${data.bestStart} – ${data.bestEnd}',
-                                style: AppFonts.display(26),
+                                style: AppText.title,
                               ),
                       ],
                     ),
@@ -265,7 +265,7 @@ class _ActivitySection extends StatelessWidget {
               margin: const EdgeInsets.only(top: 10),
               padding: const EdgeInsets.all(14),
               decoration: BoxDecoration(
-                color: AppColors.sunset.withValues(alpha: 0.1),
+                color: AppColors.tint(AppColors.sunset),
                 borderRadius: BorderRadius.circular(16),
               ),
               child: Row(
@@ -305,7 +305,7 @@ class _HourlyChart extends StatelessWidget {
               Row(
                 children: [
                   Expanded(child: Text('Saatlik skor', style: Theme.of(context).textTheme.titleMedium)),
-                  const Text('Detay', style: TextStyle(color: AppColors.sea, fontWeight: FontWeight.w600)),
+                  Text('Detay', style: AppText.label.copyWith(color: AppColors.sea)),
                   const Icon(Icons.chevron_right_rounded, color: AppColors.sea),
                 ],
               ),
@@ -332,10 +332,9 @@ class _HourlyChart extends StatelessWidget {
                             // 24 çubuk için her saati yazmak sığmıyor; 3 saatte bir etiket
                             Text(
                               int.parse(h.time.substring(0, 2)) % 3 == 0 ? h.time.substring(0, 2) : '',
-                              style: TextStyle(
-                                fontSize: 10,
+                              style: AppText.caption.copyWith(
                                 color: h.time == data.nowTime ? AppColors.ink : AppColors.muted,
-                                fontWeight: h.time == data.nowTime ? FontWeight.w800 : FontWeight.w500,
+                                fontWeight: h.time == data.nowTime ? FontWeight.w700 : FontWeight.w500,
                               ),
                             ),
                           ],

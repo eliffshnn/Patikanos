@@ -13,11 +13,42 @@ class AppColors {
   static const muted = Color(0xFF6B7A75);
   static const line = Color(0xFFE4DDD0);
   static const sunset = Color(0xFFE8833A);
+  static const sunsetLight = Color(0xFFF6C79A);
+  static const seaBright = Color(0xFF3FA7B5);
 
   static const good = Color(0xFF2E9E6A);
   static const fair = Color(0xFF8DB64A);
   static const okay = Color(0xFFE8A53A);
   static const bad = Color(0xFFD9534F);
+
+  // Fotoğraf ya da koyu gradyan üzerindeki metin ve yüzeyler
+  static const onDark = Colors.white;
+  static const onDarkMuted = Color(0xC7FFFFFF); // %78
+  static const onDarkSubtle = Color(0x99FFFFFF); // %60
+  static const onDarkGood = Color(0xFFBFE3C9);
+  static const onDarkBad = Color(0xFFFFC9C2);
+  static const glass = Color(0x1FFFFFFF); // %12
+  static const glassBorder = Color(0x38FFFFFF); // %22
+  static const shadow = Color(0x1F000000);
+
+  // Fotoğrafların üzerindeki koyu çam yeşili katmanlar (onboarding)
+  static const glassDark = Color(0x5C143F33);
+  static const photoSheet = Color(0x29143F33);
+  static const photoScrim = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [0, 0.2, 0.56, 0.76, 1],
+    colors: [Color(0x59143F33), Color(0x00143F33), Color(0x00143F33), Color(0x9E143F33), Color(0xE0143F33)],
+  );
+  static const photoScrimTop = LinearGradient(
+    begin: Alignment.topCenter,
+    end: Alignment.bottomCenter,
+    stops: [0, 0.14],
+    colors: [Color(0x40143F33), Color(0x00143F33)],
+  );
+
+  /// Bir rengin açık zemin tonu (ikon kutuları, rozetler, uyarı kartları). Hep aynı saydamlık.
+  static Color tint(Color color) => color.withValues(alpha: 0.12);
 
   static const heroGradient = LinearGradient(
     begin: Alignment.topLeft,
@@ -30,10 +61,35 @@ class AppColors {
 class AppFonts {
   static const serif = 'Fraunces';
   static const sans = 'Manrope';
+}
 
-  /// Büyük başlıklar ve öne çıkan sayılar için (onboarding'deki başlıklarla aynı görünüm).
-  static TextStyle display(double size, {Color color = AppColors.ink, FontWeight weight = FontWeight.w500}) =>
-      TextStyle(fontFamily: serif, fontSize: size, fontWeight: weight, color: color, height: 1.12, letterSpacing: -0.4);
+/// Uygulamadaki bütün yazı stilleri. Ekranlarda yeni boyut/ağırlık tanımlamak yerine bunlardan birini
+/// seçip gerekirse sadece rengini değiştirin: `AppText.title.copyWith(color: AppColors.onDark)`.
+/// Aynı stiller ThemeData.textTheme'e de bağlı (Theme.of(context).textTheme.headlineLarge == AppText.screenTitle).
+class AppText {
+  // Fraunces: başlıklar ve öne çıkan sayılar
+  static const score = TextStyle(fontFamily: AppFonts.serif, fontSize: 44, fontWeight: FontWeight.w500, height: 1.0, letterSpacing: -0.6, color: AppColors.ink);
+  static const screenTitle = TextStyle(fontFamily: AppFonts.serif, fontSize: 32, fontWeight: FontWeight.w500, height: 1.1, letterSpacing: -0.6, color: AppColors.ink);
+  static const hero = TextStyle(fontFamily: AppFonts.serif, fontSize: 28, fontWeight: FontWeight.w500, height: 1.12, letterSpacing: -0.4, color: AppColors.ink);
+  static const title = TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w500, height: 1.15, letterSpacing: -0.3, color: AppColors.ink);
+  static const section = TextStyle(fontFamily: AppFonts.serif, fontSize: 20, fontWeight: FontWeight.w500, height: 1.2, letterSpacing: -0.2, color: AppColors.ink);
+
+  // Manrope: metin, buton, etiket
+  static const cardTitle = TextStyle(fontFamily: AppFonts.sans, fontSize: 16, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: -0.1, color: AppColors.ink);
+  static const body = TextStyle(fontFamily: AppFonts.sans, fontSize: 15, fontWeight: FontWeight.w500, height: 1.5, color: AppColors.ink);
+  static const bodyMuted = TextStyle(fontFamily: AppFonts.sans, fontSize: 14, fontWeight: FontWeight.w500, height: 1.45, color: AppColors.muted);
+  static const caption = TextStyle(fontFamily: AppFonts.sans, fontSize: 12, fontWeight: FontWeight.w500, height: 1.35, color: AppColors.muted);
+  static const button = TextStyle(fontFamily: AppFonts.sans, fontSize: 16, fontWeight: FontWeight.w700, letterSpacing: 0.1);
+  static const label = TextStyle(fontFamily: AppFonts.sans, fontSize: 13, fontWeight: FontWeight.w600, height: 1.3, color: AppColors.ink);
+
+  /// Küçük, aralıklı büyük harf üst başlıklar ve rozetler ("AKILLI ZAMANLAMA", "Orta")
+  static const eyebrow = TextStyle(fontFamily: AppFonts.sans, fontSize: 11, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: 1.4, color: AppColors.muted);
+}
+
+/// Kartlar, işaretler ve alt menü için tek tip gölgeler.
+class AppShadows {
+  static const soft = [BoxShadow(color: AppColors.shadow, blurRadius: 16, offset: Offset(0, -2))];
+  static const raised = [BoxShadow(color: AppColors.shadow, blurRadius: 10, offset: Offset(0, 3))];
 }
 
 class AppTheme {
@@ -53,14 +109,18 @@ class AppTheme {
       scaffoldBackgroundColor: AppColors.sand,
       fontFamily: AppFonts.sans,
       textTheme: const TextTheme(
-        headlineLarge: TextStyle(fontFamily: AppFonts.serif, fontSize: 32, fontWeight: FontWeight.w500, color: AppColors.ink, height: 1.1, letterSpacing: -0.6),
-        headlineSmall: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.ink, letterSpacing: -0.3),
-        titleLarge: TextStyle(fontFamily: AppFonts.serif, fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.ink, letterSpacing: -0.2),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.ink, letterSpacing: -0.1),
-        bodyLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.ink, height: 1.5),
-        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.muted, height: 1.45),
-        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.muted),
-        labelLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
+        displaySmall: AppText.score,
+        headlineLarge: AppText.screenTitle,
+        headlineMedium: AppText.hero,
+        headlineSmall: AppText.title,
+        titleLarge: AppText.section,
+        titleMedium: AppText.cardTitle,
+        bodyLarge: AppText.body,
+        bodyMedium: AppText.bodyMuted,
+        bodySmall: AppText.caption,
+        labelLarge: AppText.button,
+        labelMedium: AppText.label,
+        labelSmall: AppText.eyebrow,
       ),
       appBarTheme: const AppBarTheme(
         backgroundColor: AppColors.sand,
@@ -68,7 +128,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(fontFamily: AppFonts.serif, fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.ink, letterSpacing: -0.2),
+        titleTextStyle: AppText.section,
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
@@ -85,7 +145,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(54),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          textStyle: const TextStyle(fontFamily: AppFonts.sans, fontSize: 16, fontWeight: FontWeight.w700),
+          textStyle: AppText.button,
         ),
       ),
       chipTheme: ChipThemeData(
@@ -93,8 +153,8 @@ class AppTheme {
         selectedColor: AppColors.pine,
         side: const BorderSide(color: AppColors.line),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        labelStyle: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink),
-        secondaryLabelStyle: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+        labelStyle: AppText.label,
+        secondaryLabelStyle: AppText.label.copyWith(color: AppColors.onDark),
         checkmarkColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       ),
@@ -102,7 +162,7 @@ class AppTheme {
         filled: true,
         fillColor: AppColors.surface,
         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-        hintStyle: const TextStyle(color: AppColors.muted),
+        hintStyle: AppText.bodyMuted,
         prefixIconColor: AppColors.muted,
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(16),
@@ -123,9 +183,7 @@ class AppTheme {
         elevation: 0,
         height: 68,
         labelTextStyle: WidgetStateProperty.resolveWith(
-          (states) => TextStyle(
-            fontFamily: AppFonts.sans,
-            fontSize: 12,
+          (states) => AppText.caption.copyWith(
             fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
             color: states.contains(WidgetState.selected) ? AppColors.pine : AppColors.muted,
           ),

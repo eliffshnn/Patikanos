@@ -32,10 +32,10 @@ class ProfileScreen extends StatelessWidget {
                     height: 64,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: Colors.white.withValues(alpha: 0.18),
-                      border: Border.all(color: Colors.white.withValues(alpha: 0.5), width: 2),
+                      color: AppColors.glass,
+                      border: Border.all(color: AppColors.glassBorder, width: 2),
                     ),
-                    child: const Icon(Icons.person_rounded, size: 34, color: Colors.white),
+                    child: const Icon(Icons.person_rounded, size: 34, color: AppColors.onDark),
                   ),
                   const SizedBox(width: 16),
                   Expanded(
@@ -49,12 +49,12 @@ class ProfileScreen extends StatelessWidget {
                           children: [
                             Text(
                               name.isEmpty ? 'Misafir' : name,
-                              style: AppFonts.display(22, color: Colors.white),
+                              style: AppText.title.copyWith(color: AppColors.onDark),
                             ),
                             const SizedBox(height: 2),
                             Text(
                               session?.userId == null ? '${email.isEmpty ? '' : '$email · '}Hesap oluşturulmadı' : email,
-                              style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+                              style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
                             ),
                           ],
                         );
@@ -111,10 +111,10 @@ class ProfileScreen extends StatelessWidget {
           label: const Text('Çıkış yap'),
           style: OutlinedButton.styleFrom(
             foregroundColor: AppColors.bad,
-            side: BorderSide(color: AppColors.bad.withValues(alpha: 0.5)),
+            side: const BorderSide(color: AppColors.bad),
             minimumSize: const Size.fromHeight(52),
             shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-            textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+            textStyle: AppText.button,
           ),
         ),
       ],
@@ -160,14 +160,14 @@ class _Stat extends StatelessWidget {
         margin: const EdgeInsets.symmetric(horizontal: 4),
         padding: const EdgeInsets.symmetric(vertical: 12),
         decoration: BoxDecoration(
-          color: Colors.white.withValues(alpha: 0.14),
+          color: AppColors.glass,
           borderRadius: BorderRadius.circular(16),
         ),
         child: Column(
           children: [
-            Text(value, style: AppFonts.display(20, color: Colors.white)),
+            Text(value, style: AppText.section.copyWith(color: AppColors.onDark)),
             const SizedBox(height: 2),
-            Text(label, style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8))),
+            Text(label, style: AppText.caption.copyWith(color: AppColors.onDarkMuted)),
           ],
         ),
       ),
@@ -212,7 +212,7 @@ class _SettingsRow extends StatelessWidget {
         decoration: BoxDecoration(color: AppColors.seaLight, borderRadius: BorderRadius.circular(10)),
         child: Icon(icon, size: 20, color: AppColors.sea),
       ),
-      title: Text(label, style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: AppColors.ink)),
+      title: Text(label, style: AppText.body),
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [

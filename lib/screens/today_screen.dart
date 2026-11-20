@@ -66,7 +66,7 @@ class TodayScreen extends StatelessWidget {
                 children: [
                   Icon(Icons.place_rounded, size: 16, color: AppColors.sea),
                   SizedBox(width: 4),
-                  Text('Muğla', style: TextStyle(fontWeight: FontWeight.w700, color: AppColors.ink)),
+                  Text('Muğla', style: AppText.label),
                 ],
               ),
             ),
@@ -161,7 +161,7 @@ class _HeroCard extends StatelessWidget {
                 gradient: const LinearGradient(
                   begin: Alignment.topCenter,
                   end: Alignment.bottomCenter,
-                  colors: [Color(0xFFFFC37A), AppColors.sunset],
+                  colors: [AppColors.sunsetLight, AppColors.sunset],
                 ),
                 boxShadow: [BoxShadow(color: AppColors.sunset.withValues(alpha: 0.5), blurRadius: 30)],
               ),
@@ -170,12 +170,12 @@ class _HeroCard extends StatelessWidget {
           Positioned(
             right: -40,
             bottom: -70,
-            child: Icon(Icons.landscape_rounded, size: 230, color: Colors.white.withValues(alpha: 0.12)),
+            child: Icon(Icons.landscape_rounded, size: 230, color: AppColors.glass),
           ),
           Positioned(
             right: 70,
             bottom: -50,
-            child: Icon(Icons.forest_rounded, size: 120, color: Colors.white.withValues(alpha: 0.1)),
+            child: Icon(Icons.forest_rounded, size: 120, color: AppColors.glass),
           ),
           Padding(
             padding: const EdgeInsets.fromLTRB(22, 92, 22, 22),
@@ -187,7 +187,7 @@ class _HeroCard extends StatelessWidget {
                   width: 240,
                   child: Text.rich(
                     TextSpan(
-                      style: AppFonts.display(28, color: Colors.white),
+                      style: AppText.hero.copyWith(color: AppColors.onDark),
                       children: const [
                         TextSpan(text: 'Bugün hangi rota, '),
                         TextSpan(text: 'hangi saatte?', style: TextStyle(fontStyle: FontStyle.italic)),
@@ -200,7 +200,7 @@ class _HeroCard extends StatelessWidget {
                   width: 250,
                   child: Text(
                     'Hava durumuna göre bisiklet ve yürüyüş için en uygun zamanı gösteririz.',
-                    style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.85), height: 1.4),
+                    style: AppText.bodyMuted.copyWith(color: AppColors.onDarkMuted),
                   ),
                 ),
               ],
@@ -237,14 +237,13 @@ class _ActivityOption extends StatelessWidget {
           ),
           child: Column(
             children: [
-              Icon(icon, color: selected ? Colors.white : AppColors.pine, size: 26),
+              Icon(icon, color: selected ? AppColors.onDark : AppColors.pine, size: 26),
               const SizedBox(height: 6),
               Text(
                 label,
-                style: TextStyle(
-                  fontSize: 14,
+                style: AppText.label.copyWith(
                   fontWeight: FontWeight.w700,
-                  color: selected ? Colors.white : AppColors.ink,
+                  color: selected ? AppColors.onDark : AppColors.ink,
                 ),
               ),
             ],

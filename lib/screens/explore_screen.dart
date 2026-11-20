@@ -117,7 +117,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
   }
 
   Widget _chip(String label, bool selected, VoidCallback onTap, {IconData? icon, Color? dot}) {
-    final fg = selected ? Colors.white : AppColors.ink;
+    final fg = selected ? AppColors.onDark : AppColors.ink;
     return Padding(
       padding: const EdgeInsets.only(right: 8),
       child: FilterChip(
@@ -129,7 +129,7 @@ class _ExploreScreenState extends State<ExploreScreen> {
             : dot != null
                 ? Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, shape: BoxShape.circle))
                 : null,
-        label: Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w600)),
+        label: Text(label, style: AppText.label.copyWith(color: fg)),
       ),
     );
   }

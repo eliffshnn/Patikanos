@@ -8,43 +8,6 @@ import '../theme/app_theme.dart';
 import 'home_screen.dart';
 
 // ---------------------------------------------------------------------------
-// Ortak stiller
-// ---------------------------------------------------------------------------
-
-TextStyle _serif(
-  double size, {
-  Color color = Colors.white,
-  FontWeight weight = FontWeight.w400,
-}) =>
-    TextStyle(
-      fontFamily: AppFonts.serif,
-      fontSize: size,
-      color: color,
-      fontWeight: weight,
-      height: 1.2,
-      letterSpacing: -0.3,
-    );
-
-TextStyle _sans(
-  double size, {
-  Color color = Colors.white,
-  FontWeight weight = FontWeight.w500,
-  double height = 1.5,
-  double letterSpacing = 0,
-}) =>
-    TextStyle(
-      fontFamily: AppFonts.sans,
-      fontSize: size,
-      color: color,
-      fontWeight: weight,
-      height: height,
-      letterSpacing: letterSpacing,
-    );
-
-const _cream = Color(0xF2F6F1E7); // sand, %95
-const _focus = Color(0xFFF6C79A);
-
-// ---------------------------------------------------------------------------
 // Onboarding: 3 sayfa
 // ---------------------------------------------------------------------------
 
@@ -172,18 +135,7 @@ class _IntroPage extends StatelessWidget {
         Image.asset(image, fit: BoxFit.cover, alignment: imageAlignment),
         const DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0, 0.2, 0.56, 0.76, 1],
-              colors: [
-                Color(0x590E2E25),
-                Color(0x000E2E25),
-                Color(0x000E2E25),
-                Color(0x9E0E2E25),
-                Color(0xE00E2E25),
-              ],
-            ),
+            gradient: AppColors.photoScrim,
           ),
         ),
         SafeArea(
@@ -198,14 +150,14 @@ class _IntroPage extends StatelessWidget {
                     children: [
                       if (onBack == null)
                         Text('Patikanos',
-                            style: _serif(19, weight: FontWeight.w500))
+                            style: AppText.section.copyWith(color: AppColors.onDark))
                       else
                         _BackButton(onPressed: onBack!),
                       const Spacer(),
                       TextButton(
                         onPressed: onSkip,
                         child: Text('Atla',
-                            style: _sans(13, weight: FontWeight.w600)),
+                            style: AppText.label.copyWith(color: AppColors.onDark)),
                       ),
                     ],
                   ),
@@ -217,15 +169,12 @@ class _IntroPage extends StatelessWidget {
                 const Spacer(),
                 Text(
                   eyebrow,
-                  style: _sans(9,
-                      color: Colors.white.withValues(alpha: 0.65),
-                      weight: FontWeight.w600,
-                      letterSpacing: 1.8),
+                  style: AppText.eyebrow.copyWith(color: AppColors.onDarkSubtle),
                 ),
                 const SizedBox(height: 8),
                 Text.rich(
                   TextSpan(
-                    style: _serif(24),
+                    style: AppText.title.copyWith(color: AppColors.onDark),
                     children: [
                       TextSpan(text: titleStart),
                       TextSpan(
@@ -239,8 +188,7 @@ class _IntroPage extends StatelessWidget {
                 const SizedBox(height: 8),
                 Text(
                   body,
-                  style: _sans(13,
-                      color: Colors.white.withValues(alpha: 0.78), height: 1.6),
+                  style: AppText.bodyMuted.copyWith(color: AppColors.onDarkMuted),
                 ),
                 const SizedBox(height: 24),
                 Row(
@@ -269,7 +217,7 @@ class _ScoreCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final soft = Colors.white.withValues(alpha: 0.72);
+    const soft = AppColors.onDarkMuted;
     return ClipRRect(
       borderRadius: BorderRadius.circular(20),
       child: BackdropFilter(
@@ -277,9 +225,9 @@ class _ScoreCard extends StatelessWidget {
         child: Container(
           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           decoration: BoxDecoration(
-            color: const Color(0x5C0E2E25),
+            color: AppColors.glassDark,
             borderRadius: BorderRadius.circular(20),
-            border: Border.all(color: Colors.white.withValues(alpha: 0.22)),
+            border: Border.all(color: AppColors.glassBorder),
           ),
           child: Column(
             mainAxisSize: MainAxisSize.min,
@@ -290,26 +238,21 @@ class _ScoreCard extends StatelessWidget {
                     child: Text('BUGÜN · AKYAKA',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: _sans(10,
-                            color: soft,
-                            weight: FontWeight.w600,
-                            letterSpacing: 1.6)),
+                        style: AppText.eyebrow.copyWith(color: soft)),
                   ),
                   const SizedBox(width: 8),
                   Container(
                     width: 7,
                     height: 7,
                     decoration: const BoxDecoration(
-                        color: Color(0xFF6FD39A), shape: BoxShape.circle),
+                        color: AppColors.onDarkGood, shape: BoxShape.circle),
                   ),
                   const SizedBox(width: 6),
                   Flexible(
                     child: Text('Bisiklet için harika',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: _sans(11,
-                            color: const Color(0xFFBFE3C9),
-                            weight: FontWeight.w600)),
+                        style: AppText.label.copyWith(color: AppColors.onDarkGood)),
                   ),
                 ],
               ),
@@ -317,24 +260,31 @@ class _ScoreCard extends StatelessWidget {
               Row(
                 crossAxisAlignment: CrossAxisAlignment.end,
                 children: [
-                  Text('86', style: _serif(34).copyWith(height: 0.9)),
+                  Text('86', style: AppText.score.copyWith(color: AppColors.onDark)),
                   const SizedBox(width: 4),
                   Text('/ 100',
-                      style: _sans(12, color: soft, weight: FontWeight.w600)),
-                  const Spacer(),
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.end,
-                    children: [
-                      Text('En iyi saat', style: _sans(11, color: soft)),
-                      Text('07:00 – 09:00',
-                          style: _serif(15, weight: FontWeight.w500)),
-                    ],
+                      style: AppText.caption.copyWith(color: soft)),
+                  const SizedBox(width: 12),
+                  // Büyük yazı ayarında taşmak yerine küçülür
+                  Expanded(
+                    child: FittedBox(
+                      fit: BoxFit.scaleDown,
+                      alignment: Alignment.centerRight,
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.end,
+                        children: [
+                          Text('En iyi saat', style: AppText.caption.copyWith(color: soft)),
+                          Text('07:00 – 09:00',
+                              style: AppText.section.copyWith(color: AppColors.onDark)),
+                        ],
+                      ),
+                    ),
                   ),
                 ],
               ),
               const SizedBox(height: 10),
               Container(
-                  height: 1, color: Colors.white.withValues(alpha: 0.18)),
+                  height: 1, color: AppColors.glassBorder),
               const SizedBox(height: 10),
               Wrap(
                 alignment: WrapAlignment.spaceBetween,
@@ -343,8 +293,7 @@ class _ScoreCard extends StatelessWidget {
                 children: [
                   for (final t in ['18° hissedilen', 'Rüzgâr 9 km/s', 'UV 3'])
                     Text(t,
-                        style: _sans(11,
-                            color: Colors.white.withValues(alpha: 0.88))),
+                        style: AppText.caption.copyWith(color: AppColors.onDark)),
                 ],
               ),
             ],
@@ -451,12 +400,7 @@ class _SetupPageState extends State<_SetupPage> {
         ),
         const DecoratedBox(
           decoration: BoxDecoration(
-            gradient: LinearGradient(
-              begin: Alignment.topCenter,
-              end: Alignment.bottomCenter,
-              stops: [0, 0.14],
-              colors: [Color(0x400E1410), Color(0x000E1410)],
-            ),
+            gradient: AppColors.photoScrimTop,
           ),
         ),
         SafeArea(
@@ -481,10 +425,10 @@ class _SetupPageState extends State<_SetupPage> {
                   width: double.infinity,
                   padding: EdgeInsets.fromLTRB(24, 20, 24, 24 + bottomInset),
                   decoration: BoxDecoration(
-                    color: const Color(0x29141814),
+                    color: AppColors.photoSheet,
                     border: Border(
                       top: BorderSide(
-                          color: Colors.white.withValues(alpha: 0.18)),
+                          color: AppColors.glassBorder),
                     ),
                   ),
                   child: AutofillGroup(
@@ -496,7 +440,7 @@ class _SetupPageState extends State<_SetupPage> {
                         const SizedBox(height: 12),
                         Text.rich(
                           TextSpan(
-                            style: _serif(22),
+                            style: AppText.title.copyWith(color: AppColors.onDark),
                             children: const [
                               TextSpan(text: 'Seni biraz '),
                               TextSpan(
@@ -538,9 +482,7 @@ class _SetupPageState extends State<_SetupPage> {
                         if (_error != null) ...[
                           const SizedBox(height: 10),
                           Text(_error!,
-                              style: _sans(13,
-                                  color: const Color(0xFFFFC9C2),
-                                  weight: FontWeight.w600)),
+                              style: AppText.label.copyWith(color: AppColors.onDarkBad)),
                         ],
                         const SizedBox(height: 16),
                         _PillButton(
@@ -553,7 +495,7 @@ class _SetupPageState extends State<_SetupPage> {
                           TextButton(
                             onPressed: _loading ? null : _continueOffline,
                             child: Text('Hesap olmadan devam et',
-                                style: _sans(13, weight: FontWeight.w600)),
+                                style: AppText.label.copyWith(color: AppColors.onDark)),
                           ),
                       ],
                     ),
@@ -582,7 +524,7 @@ class _BackButton extends StatelessWidget {
     return IconButton(
       onPressed: onPressed,
       tooltip: 'Geri',
-      icon: const Icon(Icons.arrow_back_rounded, color: Colors.white),
+      icon: const Icon(Icons.arrow_back_rounded, color: AppColors.onDark),
     );
   }
 }
@@ -606,9 +548,7 @@ class _Dots extends StatelessWidget {
               width: i == step ? 22 : 10,
               height: 4,
               decoration: BoxDecoration(
-                color: i == step
-                    ? Colors.white
-                    : Colors.white.withValues(alpha: 0.35),
+                color: i == step ? AppColors.onDark : AppColors.glassBorder,
                 borderRadius: BorderRadius.circular(2),
               ),
             ),
@@ -636,13 +576,13 @@ class _PillButton extends StatelessWidget {
     return FilledButton(
       onPressed: onPressed,
       style: FilledButton.styleFrom(
-        backgroundColor: _cream,
+        backgroundColor: AppColors.sand,
         foregroundColor: AppColors.pineDark,
-        disabledBackgroundColor: _cream.withValues(alpha: 0.7),
+        disabledBackgroundColor: AppColors.sandDark,
         minimumSize: expand ? const Size.fromHeight(48) : const Size(0, 46),
         padding: const EdgeInsets.symmetric(horizontal: 20),
         shape: const StadiumBorder(),
-        textStyle: _sans(14, weight: FontWeight.w600),
+        textStyle: AppText.button,
       ),
       child: loading
           ? const SizedBox(
@@ -672,10 +612,7 @@ class _Label extends StatelessWidget {
   Widget build(BuildContext context) {
     return Text(
       text,
-      style: _sans(10,
-          color: Colors.white.withValues(alpha: 0.75),
-          weight: FontWeight.w600,
-          letterSpacing: 1.5),
+      style: AppText.eyebrow.copyWith(color: AppColors.onDarkMuted),
     );
   }
 }
@@ -696,9 +633,9 @@ class _ActivityPicker extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(4),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.12),
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(26),
-        border: Border.all(color: Colors.white.withValues(alpha: 0.2)),
+        border: Border.all(color: AppColors.glassBorder),
       ),
       child: Row(
         children: [
@@ -724,11 +661,10 @@ class _ActivityPicker extends StatelessWidget {
                       ),
                       child: Text(
                         labels[i],
-                        style: _sans(13,
-                            weight: FontWeight.w600,
+                        style: AppText.label.copyWith(
                             color: i == selected
                                 ? AppColors.pineDark
-                                : Colors.white),
+                                : AppColors.onDark),
                       ),
                     ),
                   ),
@@ -772,19 +708,19 @@ class _GlassField extends StatelessWidget {
       autofillHints: autofillHints,
       textInputAction: textInputAction,
       onSubmitted: onSubmitted,
-      cursorColor: Colors.white,
-      style: _sans(14),
+      cursorColor: AppColors.onDark,
+      style: AppText.body.copyWith(color: AppColors.onDark),
       decoration: InputDecoration(
         hintText: hint,
-        hintStyle: _sans(14, color: Colors.white.withValues(alpha: 0.62)),
+        hintStyle: AppText.body.copyWith(color: AppColors.onDarkSubtle),
         filled: true,
-        fillColor: Colors.white.withValues(alpha: 0.10),
+        fillColor: AppColors.glass,
         isDense: true,
         contentPadding:
             const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
-        border: border(Colors.white.withValues(alpha: 0.3)),
-        enabledBorder: border(Colors.white.withValues(alpha: 0.3)),
-        focusedBorder: border(_focus, 2),
+        border: border(AppColors.glassBorder),
+        enabledBorder: border(AppColors.glassBorder),
+        focusedBorder: border(AppColors.sunsetLight, 2),
       ),
     );
   }

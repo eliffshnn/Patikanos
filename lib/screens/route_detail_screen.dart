@@ -21,8 +21,8 @@ class RouteDetailScreen extends StatelessWidget {
             pinned: true,
             expandedHeight: 240,
             backgroundColor: AppColors.pineDark,
-            foregroundColor: Colors.white,
-            actions: [FavoriteButton(routeId: route.id, color: Colors.white)],
+            foregroundColor: AppColors.onDark,
+            actions: [FavoriteButton(routeId: route.id, color: AppColors.onDark)],
             flexibleSpace: FlexibleSpaceBar(
               background: Container(
                 decoration: const BoxDecoration(gradient: AppColors.heroGradient),
@@ -31,7 +31,7 @@ class RouteDetailScreen extends StatelessWidget {
                     Positioned(
                       right: -30,
                       bottom: -40,
-                      child: Icon(Icons.landscape_rounded, size: 260, color: Colors.white.withValues(alpha: 0.08)),
+                      child: Icon(Icons.landscape_rounded, size: 260, color: AppColors.glass),
                     ),
                     Positioned(
                       left: 20,
@@ -53,7 +53,7 @@ class RouteDetailScreen extends StatelessWidget {
                           const SizedBox(height: 10),
                           Text(
                             route.name,
-                            style: AppFonts.display(28, color: Colors.white),
+                            style: AppText.hero.copyWith(color: AppColors.onDark),
                           ),
                         ],
                       ),
@@ -179,15 +179,15 @@ class _HeroTag extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
       decoration: BoxDecoration(
-        color: Colors.white.withValues(alpha: 0.18),
+        color: AppColors.glass,
         borderRadius: BorderRadius.circular(20),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: Colors.white),
+          Icon(icon, size: 14, color: AppColors.onDark),
           const SizedBox(width: 4),
-          Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.white)),
+          Text(label, style: AppText.label.copyWith(color: AppColors.onDark)),
         ],
       ),
     );
@@ -223,7 +223,7 @@ class _StatTile extends StatelessWidget {
                 Text(label, style: Theme.of(context).textTheme.bodySmall),
                 Text(
                   value,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: valueColor),
+                  style: AppText.cardTitle.copyWith(color: valueColor),
                 ),
               ],
             ),

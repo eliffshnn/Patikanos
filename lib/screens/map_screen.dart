@@ -39,7 +39,7 @@ class MapScreen extends StatelessWidget {
                           const SizedBox(width: 2),
                           Text(
                             route.region,
-                            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.sea),
+                            style: AppText.label.copyWith(color: AppColors.sea),
                           ),
                           const SizedBox(width: 8),
                           DifficultyPill(difficulty: route.difficulty),
@@ -121,12 +121,12 @@ class MapScreen extends StatelessWidget {
                     margin: const EdgeInsets.all(8),
                     padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
                     decoration: BoxDecoration(
-                      color: AppColors.surface.withValues(alpha: 0.85),
+                      color: AppColors.surface,
                       borderRadius: BorderRadius.circular(8),
                     ),
                     child: const Text(
                       '© OpenStreetMap contributors',
-                      style: TextStyle(fontSize: 11, color: AppColors.ink),
+                      style: AppText.caption,
                     ),
                   ),
                 ),
@@ -229,12 +229,12 @@ class _ClusterMarker extends StatelessWidget {
         decoration: BoxDecoration(
           color: AppColors.sunset,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2.5),
-          boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 2))],
+          border: Border.all(color: AppColors.onDark, width: 2.5),
+          boxShadow: AppShadows.raised,
         ),
         child: Text(
           '$count',
-          style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w800, color: Colors.white),
+          style: AppText.cardTitle.copyWith(color: AppColors.onDark),
         ),
       ),
     );
@@ -256,13 +256,13 @@ class _RouteMarker extends StatelessWidget {
         decoration: BoxDecoration(
           color: cycling ? AppColors.sea : AppColors.pine,
           shape: BoxShape.circle,
-          border: Border.all(color: Colors.white, width: 2.5),
-          boxShadow: const [BoxShadow(color: Color(0x40000000), blurRadius: 6, offset: Offset(0, 2))],
+          border: Border.all(color: AppColors.onDark, width: 2.5),
+          boxShadow: AppShadows.raised,
         ),
         child: Icon(
           cycling ? Icons.directions_bike_rounded : Icons.hiking_rounded,
           size: 18,
-          color: Colors.white,
+          color: AppColors.onDark,
         ),
       ),
     );
@@ -281,7 +281,7 @@ class _MapHeader extends StatelessWidget {
       decoration: BoxDecoration(
         color: AppColors.surface,
         borderRadius: BorderRadius.circular(18),
-        boxShadow: const [BoxShadow(color: Color(0x1F000000), blurRadius: 12, offset: Offset(0, 3))],
+        boxShadow: AppShadows.raised,
       ),
       child: Row(
         children: [
@@ -316,7 +316,7 @@ class _LegendDot extends StatelessWidget {
       children: [
         Container(width: 10, height: 10, decoration: BoxDecoration(color: color, shape: BoxShape.circle)),
         const SizedBox(width: 5),
-        Text(label, style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: AppColors.ink)),
+        Text(label, style: AppText.label),
       ],
     );
   }

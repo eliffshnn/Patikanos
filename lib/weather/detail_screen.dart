@@ -49,7 +49,7 @@ class _HourRow extends StatelessWidget {
               children: [
                 Text(hour.time, style: Theme.of(context).textTheme.titleMedium),
                 if (isNow)
-                  const Text('Şimdi', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: AppColors.sea)),
+                  Text('Şimdi', style: AppText.eyebrow.copyWith(color: AppColors.sea)),
               ],
             ),
           ),
@@ -86,10 +86,10 @@ class _HourRow extends StatelessWidget {
             width: 40,
             height: 40,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: color.withValues(alpha: 0.14), shape: BoxShape.circle),
+            decoration: BoxDecoration(color: AppColors.tint(color), shape: BoxShape.circle),
             child: Text(
               '${hour.score}',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w800, color: color),
+              style: AppText.cardTitle.copyWith(color: color),
             ),
           ),
         ],
