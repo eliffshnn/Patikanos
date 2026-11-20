@@ -4,6 +4,7 @@ import 'package:flutter_test/flutter_test.dart';
 
 import 'package:patikanos/data/route_model.dart';
 import 'package:patikanos/main.dart';
+import 'package:patikanos/widgets/nature.dart';
 import 'package:patikanos/screens/map_screen.dart';
 import 'package:patikanos/theme/app_theme.dart';
 
@@ -11,6 +12,7 @@ void main() {
   setUp(() {
     rootBundle.clear();
     RouteRepository.clearCache();
+    RouteMapPreview.enabled = false; // testte ağ yok
   });
 
   testWidgets('Shows the real app with bottom navigation and action buttons',

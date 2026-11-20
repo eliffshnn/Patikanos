@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../data/favorites.dart';
 import '../data/route_model.dart';
 import '../theme/app_theme.dart';
+import '../widgets/nature.dart';
 import '../widgets/route_card.dart';
 
 class FavoritesScreen extends StatelessWidget {
@@ -87,11 +88,7 @@ class _EmptyState extends StatelessWidget {
             style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 22),
-          FilledButton.icon(
-            onPressed: onExplore,
-            icon: const Icon(Icons.explore_rounded),
-            label: const Text('Rotaları keşfet'),
-          ),
+          PillButton(label: 'Rotaları keşfet', onPressed: onExplore),
         ],
       ),
     );

@@ -4,11 +4,13 @@ import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:patikanos/data/user_service.dart';
 import 'package:patikanos/main.dart';
+import 'package:patikanos/widgets/nature.dart';
 
 void main() {
   setUp(() {
     SharedPreferences.setMockInitialValues({});
     Session.current.value = null;
+    RouteMapPreview.enabled = false; // testte ağ yok
   });
 
   Future<void> pumpOnboarding(WidgetTester tester) async {
@@ -66,7 +68,7 @@ void main() {
     await tester.pumpWidget(MyApp(onboarded: onboarded));
     await tester.pumpAndSettle();
 
-    expect(find.text('Merhaba, Tuba 👋'), findsOneWidget);
+    expect(find.text('MERHABA, TUBA 👋'), findsOneWidget);
 
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();

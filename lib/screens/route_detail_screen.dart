@@ -4,6 +4,7 @@ import 'package:flutter/services.dart';
 import '../data/route_model.dart';
 import '../theme/app_theme.dart';
 import '../weather/weather_screen.dart';
+import '../widgets/nature.dart';
 import '../widgets/route_card.dart';
 
 class RouteDetailScreen extends StatelessWidget {
@@ -19,20 +20,18 @@ class RouteDetailScreen extends StatelessWidget {
         slivers: [
           SliverAppBar(
             pinned: true,
-            expandedHeight: 240,
+            expandedHeight: 320,
             backgroundColor: AppColors.pineDark,
             foregroundColor: AppColors.onDark,
+            systemOverlayStyle: SystemUiOverlayStyle.light,
             actions: [FavoriteButton(routeId: route.id, color: AppColors.onDark)],
             flexibleSpace: FlexibleSpaceBar(
-              background: Container(
-                decoration: const BoxDecoration(gradient: AppColors.heroGradient),
-                child: Stack(
+              // Rotanın başlangıç noktasının gerçek haritası; başlık okunsun diye üstünde koyu geçiş
+              background: Stack(
+                  fit: StackFit.expand,
                   children: [
-                    Positioned(
-                      right: -30,
-                      bottom: -40,
-                      child: Icon(Icons.landscape_rounded, size: 260, color: AppColors.glass),
-                    ),
+                    RouteMapPreview(route: route, zoom: 13),
+                    const IgnorePointer(child: DecoratedBox(decoration: BoxDecoration(gradient: AppColors.photoScrim))),
                     Positioned(
                       left: 20,
                       right: 20,
@@ -60,7 +59,6 @@ class RouteDetailScreen extends StatelessWidget {
                     ),
                   ],
                 ),
-              ),
             ),
           ),
           SliverPadding(
@@ -88,42 +86,57 @@ class RouteDetailScreen extends StatelessWidget {
                   ],
                 ),
                 const SizedBox(height: 20),
-                Container(
-                  padding: const EdgeInsets.all(18),
-                  decoration: BoxDecoration(
-                    color: AppColors.seaLight,
-                    borderRadius: BorderRadius.circular(20),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                ClipRRect(
+                  borderRadius: BorderRadius.circular(24),
+                  child: Stack(
                     children: [
-                      Row(
-                        children: [
-                          const Icon(Icons.wb_sunny_rounded, color: AppColors.sea),
-                          const SizedBox(width: 8),
-                          Text('Ne zaman gitmeli?', style: Theme.of(context).textTheme.titleMedium),
-                        ],
+                      Positioned.fill(
+                        child: Image.asset(AppImages.forActivity(route.weatherActivity), fit: BoxFit.cover),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Rotanın başlangıç noktası için saatlik hava skorunu ve günün en iyi zamanını gör.',
-                        style: Theme.of(context).textTheme.bodyMedium,
+                      // Metin fotoğrafın ortasında durduğu için geçişin üstüne tam bir katman daha
+                      const Positioned.fill(
+                        child: DecoratedBox(decoration: BoxDecoration(gradient: AppColors.photoScrim)),
                       ),
-                      const SizedBox(height: 14),
-                      FilledButton.icon(
-                        onPressed: () => Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (_) => WeatherScreen(
-                              lat: route.startLat,
-                              lon: route.startLon,
-                              placeName: route.region,
-                              activity: route.weatherActivity,
+                      const Positioned.fill(child: ColoredBox(color: AppColors.glassDark)),
+                      Padding(
+                        padding: const EdgeInsets.fromLTRB(20, 70, 20, 20),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('AKILLI ZAMANLAMA', style: AppText.eyebrow.copyWith(color: AppColors.onDarkMuted)),
+                            const SizedBox(height: 6),
+                            Text.rich(
+                              TextSpan(
+                                style: AppText.title.copyWith(color: AppColors.onDark),
+                                children: const [
+                                  TextSpan(text: 'Ne zaman '),
+                                  TextSpan(text: 'gitmeli?', style: TextStyle(fontStyle: FontStyle.italic)),
+                                ],
+                              ),
                             ),
-                          ),
+                            const SizedBox(height: 6),
+                            Text(
+                              'Başlangıç noktası için saatlik hava skorunu ve günün en iyi zamanını gör.',
+                              style: AppText.bodyMuted.copyWith(color: AppColors.onDarkMuted),
+                            ),
+                            const SizedBox(height: 16),
+                            PillButton(
+                              label: 'Hava durumuna bak',
+                              onPhoto: true,
+                              onPressed: () => Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (_) => WeatherScreen(
+                                    lat: route.startLat,
+                                    lon: route.startLon,
+                                    placeName: route.region,
+                                    activity: route.weatherActivity,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
-                        icon: const Icon(Icons.cloud_outlined),
-                        label: const Text('Hava durumuna bak'),
                       ),
                     ],
                   ),

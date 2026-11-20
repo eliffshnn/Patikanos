@@ -1,6 +1,9 @@
+import 'dart:ui' show ImageFilter;
+
 import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
+import '../widgets/nature.dart';
 import 'detail_screen.dart';
 import 'notification_service.dart';
 import 'weather_model.dart';
@@ -124,59 +127,88 @@ class _ActivitySection extends StatelessWidget {
                 ],
               ),
             ),
-          Container(
-            padding: const EdgeInsets.all(22),
-            decoration: BoxDecoration(
-              gradient: AppColors.heroGradient,
-              borderRadius: BorderRadius.circular(24),
-            ),
-            child: Row(
-              children: [
-                SizedBox(
-                  width: 108,
-                  height: 108,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      CircularProgressIndicator(
-                        value: (score ?? 0) / 10,
-                        strokeWidth: 10,
-                        strokeCap: StrokeCap.round,
-                        color: score == null ? AppColors.onDarkSubtle : scoreColor(score),
-                        backgroundColor: AppColors.glass,
-                      ),
-                      Center(
-                        child: Text(
-                          score == null ? '–' : '$score',
-                          style: AppText.score.copyWith(color: AppColors.onDark),
+          // Onboarding'deki gibi: fotoğraf üzerinde buzlu cam skor paneli
+          ClipRRect(
+            borderRadius: BorderRadius.circular(24),
+            child: SizedBox(
+              height: 250,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  Image.asset(AppImages.forActivity(data.activity), fit: BoxFit.cover),
+                  const DecoratedBox(decoration: BoxDecoration(gradient: AppColors.photoScrim)),
+                  Positioned(
+                    left: 18,
+                    top: 16,
+                    child: Text(
+                      'ŞU AN · ${data.nowTime ?? '-'}',
+                      style: AppText.eyebrow.copyWith(color: AppColors.onDark),
+                    ),
+                  ),
+                  Positioned(
+                    left: 12,
+                    right: 12,
+                    bottom: 12,
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(20),
+                      child: BackdropFilter(
+                        filter: ImageFilter.blur(sigmaX: 14, sigmaY: 14),
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppColors.glassDark,
+                            borderRadius: BorderRadius.circular(20),
+                            border: Border.all(color: AppColors.glassBorder),
+                          ),
+                          child: Row(
+                            children: [
+                              SizedBox(
+                                width: 84,
+                                height: 84,
+                                child: Stack(
+                                  fit: StackFit.expand,
+                                  children: [
+                                    CircularProgressIndicator(
+                                      value: (score ?? 0) / 10,
+                                      strokeWidth: 8,
+                                      strokeCap: StrokeCap.round,
+                                      color: score == null ? AppColors.onDarkSubtle : scoreColor(score),
+                                      backgroundColor: AppColors.glass,
+                                    ),
+                                    Center(
+                                      child: Text(
+                                        score == null ? '–' : '$score',
+                                        style: AppText.score.copyWith(color: AppColors.onDark),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              const SizedBox(width: 16),
+                              Expanded(
+                                child: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text(
+                                      score == null ? 'Skor yok' : scoreLabel(score),
+                                      style: AppText.title.copyWith(color: AppColors.onDark),
+                                    ),
+                                    const SizedBox(height: 4),
+                                    Text(
+                                      '10 üzerinden ${activityName(data.activity).toLowerCase()} uygunluğu',
+                                      style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                    ],
+                    ),
                   ),
-                ),
-                const SizedBox(width: 20),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
-                        'Şu an · ${data.nowTime ?? '-'}',
-                        style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        score == null ? 'Skor yok' : scoreLabel(score),
-                        style: AppText.title.copyWith(color: AppColors.onDark),
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        '10 üzerinden ${activityName(data.activity).toLowerCase()} uygunluğu',
-                        style: AppText.caption.copyWith(color: AppColors.onDarkMuted),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
           ),
           if (data.nowTips.isNotEmpty) ...[
@@ -378,11 +410,7 @@ class _ErrorView extends StatelessWidget {
               style: Theme.of(context).textTheme.bodyMedium,
             ),
             const SizedBox(height: 20),
-            FilledButton.icon(
-              onPressed: onRetry,
-              icon: const Icon(Icons.refresh_rounded),
-              label: const Text('Tekrar dene'),
-            ),
+            PillButton(label: 'Tekrar dene', icon: Icons.refresh_rounded, onPressed: onRetry),
           ],
         ),
       ),

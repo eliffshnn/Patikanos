@@ -8,7 +8,7 @@ class AppColors {
   static const seaLight = Color(0xFFD7ECEF);
   static const sand = Color(0xFFF6F1E7);
   static const sandDark = Color(0xFFEDE5D5);
-  static const surface = Colors.white;
+  static const surface = Color(0xFFFCF9F3); // sıcak kâğıt tonu, saf beyaz yerine
   static const ink = Color(0xFF1C2A27);
   static const muted = Color(0xFF6B7A75);
   static const line = Color(0xFFE4DDD0);
@@ -86,6 +86,17 @@ class AppText {
   static const eyebrow = TextStyle(fontFamily: AppFonts.sans, fontSize: 11, fontWeight: FontWeight.w700, height: 1.3, letterSpacing: 1.4, color: AppColors.muted);
 }
 
+/// Uygulamadaki fotoğraflar. Rotaya özel fotoğraf olmadığı için bunlar sadece atmosfer görseli olarak
+/// kullanılır (Bugün, hava durumu, profil); rota kartlarında rotanın gerçek haritası gösterilir.
+class AppImages {
+  static const coast = 'assets/onboarding/coast-hike.jpg';
+  static const forest = 'assets/onboarding/forest-bike.jpg';
+  static const sunset = 'assets/onboarding/sunset-climb.jpg';
+
+  /// Hava durumu kartının arka planı: bisiklette orman yolu, yürüyüşte sahil patikası
+  static String forActivity(String activity) => activity == 'bike' ? forest : coast;
+}
+
 /// Kartlar, işaretler ve alt menü için tek tip gölgeler.
 class AppShadows {
   static const soft = [BoxShadow(color: AppColors.shadow, blurRadius: 16, offset: Offset(0, -2))];
@@ -135,7 +146,7 @@ class AppTheme {
         elevation: 0,
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(24),
           side: const BorderSide(color: AppColors.line),
         ),
       ),
@@ -144,9 +155,20 @@ class AppTheme {
           backgroundColor: AppColors.pine,
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(54),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape: const StadiumBorder(),
           textStyle: AppText.button,
         ),
+      ),
+      outlinedButtonTheme: OutlinedButtonThemeData(
+        style: OutlinedButton.styleFrom(
+          minimumSize: const Size.fromHeight(54),
+          shape: const StadiumBorder(),
+          textStyle: AppText.button,
+        ),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.surface,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(28))),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: AppColors.surface,

@@ -4,6 +4,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../data/route_model.dart';
 import '../theme/app_theme.dart';
+import '../widgets/nature.dart';
 import '../widgets/route_card.dart';
 import 'route_detail_screen.dart';
 
@@ -64,7 +65,9 @@ class MapScreen extends StatelessWidget {
               ],
             ),
             const SizedBox(height: 18),
-            FilledButton.icon(
+            PillButton(
+              label: 'Rota detayını aç',
+              expand: true,
               onPressed: () {
                 Navigator.pop(sheetContext);
                 Navigator.push(
@@ -72,8 +75,6 @@ class MapScreen extends StatelessWidget {
                   MaterialPageRoute(builder: (_) => RouteDetailScreen(route: route)),
                 );
               },
-              icon: const Icon(Icons.arrow_forward_rounded),
-              label: const Text('Rota detayını aç'),
             ),
           ],
         ),

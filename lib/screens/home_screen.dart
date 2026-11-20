@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../data/user_service.dart';
 import '../theme/app_theme.dart';
@@ -50,17 +51,15 @@ class _HomeScreenState extends State<HomeScreen> {
         onActivitySelected: _onActivitySelected,
         onSeeAllRoutes: () => _onNavTapped(_exploreIndex),
       ),
-      const ExploreScreen(),
-      const MapScreen(),
-      FavoritesScreen(onExplore: () => _onNavTapped(_exploreIndex)),
+      const _Plain(child: ExploreScreen()),
+      const _Plain(child: MapScreen()),
+      _Plain(child: FavoritesScreen(onExplore: () => _onNavTapped(_exploreIndex))),
+      // Bugün ve Profil fotoğrafla başlar; üst boşluğu kendileri ayarlar
       const ProfileScreen(),
     ];
 
     return Scaffold(
-      body: SafeArea(
-        bottom: false,
-        child: IndexedStack(index: _selectedIndex, children: pages),
-      ),
+      body: IndexedStack(index: _selectedIndex, children: pages),
       bottomNavigationBar: DecoratedBox(
         decoration: const BoxDecoration(
           boxShadow: AppShadows.soft,
@@ -79,6 +78,21 @@ class _HomeScreenState extends State<HomeScreen> {
               .toList(),
         ),
       ),
+    );
+  }
+}
+
+/// Fotoğrafsız sekmeler: durum çubuğunun altında kalmaz, saat simgeleri koyu
+class _Plain extends StatelessWidget {
+  const _Plain({required this.child});
+
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnnotatedRegion<SystemUiOverlayStyle>(
+      value: SystemUiOverlayStyle.dark,
+      child: SafeArea(bottom: false, child: child),
     );
   }
 }

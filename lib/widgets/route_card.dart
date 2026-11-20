@@ -4,6 +4,7 @@ import '../data/favorites.dart';
 import '../data/route_model.dart';
 import '../screens/route_detail_screen.dart';
 import '../theme/app_theme.dart';
+import 'nature.dart';
 
 /// Rotanın aktivitesine göre küçük resim yerine kullanılan renkli kutu.
 class RouteThumb extends StatelessWidget {
@@ -103,52 +104,93 @@ class RouteCard extends StatelessWidget {
           context,
           MaterialPageRoute(builder: (_) => RouteDetailScreen(route: route)),
         ),
-        child: Padding(
-          padding: const EdgeInsets.all(12),
-          child: Row(
-            children: [
-              RouteThumb(route: route),
-              const SizedBox(width: 14),
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Row(
-                      children: [
-                        Icon(Icons.place_outlined, size: 13, color: AppColors.sea),
-                        const SizedBox(width: 2),
-                        Text(
-                          route.region,
-                          style: AppText.label.copyWith(color: AppColors.sea),
-                        ),
-                        const SizedBox(width: 8),
-                        DifficultyPill(difficulty: route.difficulty),
-                      ],
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            SizedBox(
+              height: 132,
+              child: Stack(
+                fit: StackFit.expand,
+                children: [
+                  RouteMapPreview(route: route),
+                  Positioned(
+                    left: 12,
+                    top: 12,
+                    child: _ActivityTag(route: route),
+                  ),
+                  Positioned(
+                    right: 8,
+                    top: 8,
+                    child: DecoratedBox(
+                      decoration: const BoxDecoration(color: AppColors.surface, shape: BoxShape.circle),
+                      child: FavoriteButton(routeId: route.id),
                     ),
-                    const SizedBox(height: 4),
-                    Text(
-                      route.name,
-                      maxLines: 2,
-                      overflow: TextOverflow.ellipsis,
-                      style: Theme.of(context).textTheme.titleMedium,
-                    ),
-                    const SizedBox(height: 6),
-                    Wrap(
-                      spacing: 12,
-                      runSpacing: 4,
-                      children: [
-                        InfoChip(icon: Icons.straighten_rounded, label: '${route.distanceKm.toStringAsFixed(1)} km'),
-                        InfoChip(icon: Icons.trending_up_rounded, label: '${route.elevationGainM} m'),
-                        InfoChip(icon: Icons.schedule_rounded, label: formatDuration(route.durationMin)),
-                      ],
-                    ),
-                  ],
-                ),
+                  ),
+                ],
               ),
-              FavoriteButton(routeId: route.id),
-            ],
-          ),
+            ),
+            Padding(
+              padding: const EdgeInsets.fromLTRB(16, 14, 16, 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      Text(route.region.toUpperCase(), style: AppText.eyebrow.copyWith(color: AppColors.sea)),
+                      const SizedBox(width: 8),
+                      DifficultyPill(difficulty: route.difficulty),
+                    ],
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    route.name,
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                    style: AppText.section,
+                  ),
+                  const SizedBox(height: 10),
+                  Wrap(
+                    spacing: 14,
+                    runSpacing: 4,
+                    children: [
+                      InfoChip(icon: Icons.straighten_rounded, label: '${route.distanceKm.toStringAsFixed(1)} km'),
+                      InfoChip(icon: Icons.trending_up_rounded, label: '${route.elevationGainM} m'),
+                      InfoChip(icon: Icons.schedule_rounded, label: formatDuration(route.durationMin)),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ],
         ),
+      ),
+    );
+  }
+}
+
+/// Haritanın üzerinde "Yürüyüş" / "Bisiklet" etiketi
+class _ActivityTag extends StatelessWidget {
+  const _ActivityTag({required this.route});
+
+  final TrailRoute route;
+
+  @override
+  Widget build(BuildContext context) {
+    final cycling = route.isCycling && !route.isWalking;
+    return Container(
+      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+      decoration: BoxDecoration(
+        color: cycling ? AppColors.sea : AppColors.pine,
+        borderRadius: BorderRadius.circular(30),
+        boxShadow: AppShadows.raised,
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Icon(cycling ? Icons.directions_bike_rounded : Icons.hiking_rounded, size: 14, color: AppColors.onDark),
+          const SizedBox(width: 4),
+          Text(cycling ? 'Bisiklet' : 'Yürüyüş', style: AppText.label.copyWith(color: AppColors.onDark)),
+        ],
       ),
     );
   }

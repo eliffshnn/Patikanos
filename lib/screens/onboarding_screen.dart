@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 
 import '../data/user_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/nature.dart';
 import 'home_screen.dart';
 
 // ---------------------------------------------------------------------------
@@ -195,7 +196,7 @@ class _IntroPage extends StatelessWidget {
                   children: [
                     _Dots(step: step),
                     const Spacer(),
-                    _PillButton(label: buttonLabel, onPressed: onNext),
+                    PillButton(label: buttonLabel, onPressed: onNext, onPhoto: true),
                   ],
                 ),
               ],
@@ -485,7 +486,8 @@ class _SetupPageState extends State<_SetupPage> {
                               style: AppText.label.copyWith(color: AppColors.onDarkBad)),
                         ],
                         const SizedBox(height: 16),
-                        _PillButton(
+                        PillButton(
+                          onPhoto: true,
                           label: 'Keşfetmeye başla',
                           onPressed: _loading ? null : _submit,
                           loading: _loading,
@@ -554,51 +556,6 @@ class _Dots extends StatelessWidget {
             ),
         ],
       ),
-    );
-  }
-}
-
-class _PillButton extends StatelessWidget {
-  const _PillButton({
-    required this.label,
-    required this.onPressed,
-    this.loading = false,
-    this.expand = false,
-  });
-
-  final String label;
-  final VoidCallback? onPressed;
-  final bool loading;
-  final bool expand;
-
-  @override
-  Widget build(BuildContext context) {
-    return FilledButton(
-      onPressed: onPressed,
-      style: FilledButton.styleFrom(
-        backgroundColor: AppColors.sand,
-        foregroundColor: AppColors.pineDark,
-        disabledBackgroundColor: AppColors.sandDark,
-        minimumSize: expand ? const Size.fromHeight(48) : const Size(0, 46),
-        padding: const EdgeInsets.symmetric(horizontal: 20),
-        shape: const StadiumBorder(),
-        textStyle: AppText.button,
-      ),
-      child: loading
-          ? const SizedBox(
-              width: 20,
-              height: 20,
-              child: CircularProgressIndicator(
-                  strokeWidth: 2, color: AppColors.pineDark),
-            )
-          : Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(label),
-                const SizedBox(width: 8),
-                const Icon(Icons.arrow_forward_rounded, size: 16),
-              ],
-            ),
     );
   }
 }
