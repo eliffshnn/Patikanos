@@ -4,7 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 
-import '../weather/weather_service.dart';
+import '../api/api_config.dart';
 
 /// Backend'deki kullanıcı (POST /users cevabı).
 class AppUser {
@@ -32,7 +32,7 @@ class UserServiceException implements Exception {
 
 /// /users, /users/{id}/preferences uç noktalarıyla konuşur.
 class UserService {
-  static String get _base => WeatherService.baseUrl;
+  static String get _base => ApiConfig.baseUrl;
   static const _json = {'Content-Type': 'application/json'};
   static const _timeout = Duration(seconds: 10);
 
