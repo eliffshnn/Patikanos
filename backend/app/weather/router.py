@@ -6,7 +6,7 @@ import httpx
 from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import JSONResponse
 
-from app.weather.client import get_hourly
+from app.weather.client import TZ, get_hourly_with_meta
 from app.weather.scoring import best_window, clothing_tips, score_hour, window_label, window_warnings
 
 
@@ -25,7 +25,7 @@ def get_score(
     day: Literal["today", "tomorrow"] = "today",
 ):
     try:
-        h = get_hourly(lat, lon, days=2 if day == "tomorrow" else 1)
+        h, fetched_at, stale = get_hourly_with_meta(lat, lon, days=2 if day == "tomorrow" else 1)
     except httpx.HTTPError:
         raise HTTPException(status_code=503, detail="Hava durumu servisine ulaşılamadı")
 
@@ -58,6 +58,8 @@ def get_score(
     return {
         "activity": activity,
         "day": day,
+        "updated_at": datetime.fromtimestamp(fetched_at, TZ).strftime("%H:%M"),
+        "stale": stale,
         "now": {
             "time": times[now_i][11:16],
             "score": scores[now_i],

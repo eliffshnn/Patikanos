@@ -29,9 +29,9 @@ def client(monkeypatch):
 
     def fake_get_hourly(lat, lon, days=1):
         calls.append(days)
-        return fake_hourly(days)
+        return fake_hourly(days), 0.0, False
 
-    monkeypatch.setattr(weather_router, "get_hourly", fake_get_hourly)
+    monkeypatch.setattr(weather_router, "get_hourly_with_meta", fake_get_hourly)
     app = FastAPI()
     app.include_router(weather_router.router)
     test_client = TestClient(app)
@@ -48,6 +48,8 @@ def test_score_today(client):
     assert body["hourly"][22]["score"] == 8       # karanlık
     assert body["best_window"] == {"start": "07:00", "end": "09:00"}
     assert client.calls == [1]
+    assert body["stale"] is False
+    assert len(body["updated_at"]) == 5
 
 
 def test_score_tomorrow_uses_second_day(client):
@@ -66,7 +68,7 @@ def test_open_meteo_down_returns_503(monkeypatch, client):
     def broken(lat, lon, days=1):
         raise httpx.ConnectError("Open-Meteo kapalı")
 
-    monkeypatch.setattr(weather_router, "get_hourly", broken)
+    monkeypatch.setattr(weather_router, "get_hourly_with_meta", broken)
     r = client.get("/weather/score", params={"lat": 37.21, "lon": 28.36, "activity": "bike"})
     assert r.status_code == 503
     assert "ulaşılamadı" in r.json()["detail"]
@@ -84,3 +86,10 @@ def test_invalid_input_returns_422(client, params):
     r = client.get("/weather/score", params=params)
     assert r.status_code == 422
     assert client.calls == []
+
+def test_stale_flag_is_passed_through(monkeypatch, client):
+    monkeypatch.setattr(weather_router, "get_hourly_with_meta",
+                        lambda lat, lon, days=1: (fake_hourly(days), 0.0, True))
+    r = client.get("/weather/score", params={"lat": 37.21, "lon": 28.36, "activity": "bike"})
+    assert r.status_code == 200
+    assert r.json()["stale"] is True

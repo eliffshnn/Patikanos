@@ -124,6 +124,21 @@ class _ActivitySection extends StatelessWidget {
                 ],
               ),
             ),
+          if (data.stale)
+            Card(
+              color: Colors.orange.shade50,
+              child: ListTile(
+                leading: const Icon(Icons.cloud_off_rounded, color: Colors.orange),
+                title: const Text('Hava servisine şu an ulaşılamıyor'),
+                subtitle: Text('Son bilinen veri gösteriliyor (${data.updatedAt ?? '-'})'),
+              ),
+            ),
+          if (data.updatedAt != null)
+            Padding(
+              padding: const EdgeInsets.only(bottom: 6),
+              child: Text('Son güncelleme ${data.updatedAt}',
+                  style: const TextStyle(fontSize: 12, color: Colors.black54)),
+            ),
           Container(
             padding: const EdgeInsets.all(22),
             decoration: BoxDecoration(

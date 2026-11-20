@@ -34,6 +34,8 @@ class WeatherScore {
   final String? nowTime;
   final int? nowScore;
   final List<Tip> nowTips;
+  final String? updatedAt;
+  final bool stale;
   final String? bestStart;
   final String? bestEnd;
   final List<String> warnings;
@@ -44,6 +46,8 @@ class WeatherScore {
     this.nowTime,
     this.nowScore,
     this.nowTips = const [],
+    this.updatedAt,
+    this.stale = false,
     this.bestStart,
     this.bestEnd,
     required this.warnings,
@@ -58,6 +62,8 @@ class WeatherScore {
       nowTime: now?['time'] as String?,
       nowScore: (now?['score'] as num?)?.toInt(),
       nowTips: ((now?['tips'] as List?) ?? const []).map((t) => Tip.fromJson(t as Map<String, dynamic>)).toList(),
+      updatedAt: json['updated_at'] as String?,
+      stale: json['stale'] as bool? ?? false,
       bestStart: best?['start'] as String?,
       bestEnd: best?['end'] as String?,
       warnings: (json['warnings'] as List).cast<String>(),

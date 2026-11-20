@@ -76,3 +76,29 @@ def test_errors_are_not_cached(monkeypatch):
         with pytest.raises(httpx.HTTPStatusError):
             weather_client.get_hourly(37.21, 28.36)
     assert len(made) == 2
+
+def test_new_day_does_not_use_yesterdays_cache(calls, monkeypatch):
+    monkeypatch.setattr(weather_client, "_today", lambda: "2026-11-20")
+    weather_client.get_hourly(37.21, 28.36)
+    monkeypatch.setattr(weather_client, "_today", lambda: "2026-11-21")
+    weather_client.get_hourly(37.21, 28.36)
+    assert len(calls) == 2
+
+
+def test_stale_data_returned_when_open_meteo_down(calls, monkeypatch):
+    now = [1000.0]
+    monkeypatch.setattr(weather_client.time, "time", lambda: now[0])
+    data, _, stale = weather_client.get_hourly_with_meta(37.21, 28.36)
+    assert stale is False
+
+    def failing_get(url, params, timeout):
+        return FakeResponse({}, status=500)
+
+    monkeypatch.setattr(weather_client.httpx, "get", failing_get)
+    now[0] += weather_client.CACHE_TTL_SECONDS + 1
+    old, fetched_at, stale = weather_client.get_hourly_with_meta(37.21, 28.36)
+    assert stale is True and old == data and fetched_at == 1000.0
+
+    now[0] += weather_client.STALE_MAX_SECONDS
+    with pytest.raises(httpx.HTTPStatusError):
+        weather_client.get_hourly_with_meta(37.21, 28.36)
