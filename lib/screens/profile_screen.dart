@@ -49,7 +49,7 @@ class ProfileScreen extends StatelessWidget {
                           children: [
                             Text(
                               name.isEmpty ? 'Misafir' : name,
-                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                              style: AppFonts.display(22, color: Colors.white),
                             ),
                             const SizedBox(height: 2),
                             Text(
@@ -165,7 +165,7 @@ class _Stat extends StatelessWidget {
         ),
         child: Column(
           children: [
-            Text(value, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w800, color: Colors.white)),
+            Text(value, style: AppFonts.display(20, color: Colors.white)),
             const SizedBox(height: 2),
             Text(label, style: TextStyle(fontSize: 11, color: Colors.white.withValues(alpha: 0.8))),
           ],

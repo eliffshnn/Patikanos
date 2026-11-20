@@ -183,11 +183,16 @@ class _HeroCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               mainAxisSize: MainAxisSize.min,
               children: [
-                const SizedBox(
-                  width: 230,
-                  child: Text(
-                    'Bugün hangi rota, hangi saatte?',
-                    style: TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, height: 1.15),
+                SizedBox(
+                  width: 240,
+                  child: Text.rich(
+                    TextSpan(
+                      style: AppFonts.display(28, color: Colors.white),
+                      children: const [
+                        TextSpan(text: 'Bugün hangi rota, '),
+                        TextSpan(text: 'hangi saatte?', style: TextStyle(fontStyle: FontStyle.italic)),
+                      ],
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),

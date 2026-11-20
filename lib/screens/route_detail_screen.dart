@@ -53,7 +53,7 @@ class RouteDetailScreen extends StatelessWidget {
                           const SizedBox(height: 10),
                           Text(
                             route.name,
-                            style: const TextStyle(fontSize: 26, fontWeight: FontWeight.w800, color: Colors.white, height: 1.15),
+                            style: AppFonts.display(28, color: Colors.white),
                           ),
                         ],
                       ),
@@ -70,6 +70,7 @@ class RouteDetailScreen extends StatelessWidget {
                 GridView.count(
                   crossAxisCount: 2,
                   shrinkWrap: true,
+                  padding: EdgeInsets.zero,
                   physics: const NeverScrollableScrollPhysics(),
                   mainAxisSpacing: 12,
                   crossAxisSpacing: 12,
@@ -222,7 +223,7 @@ class _StatTile extends StatelessWidget {
                 Text(label, style: Theme.of(context).textTheme.bodySmall),
                 Text(
                   value,
-                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w800, color: valueColor),
+                  style: TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: valueColor),
                 ),
               ],
             ),

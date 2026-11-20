@@ -148,7 +148,7 @@ class _ActivitySection extends StatelessWidget {
                       Center(
                         child: Text(
                           score == null ? '–' : '$score',
-                          style: const TextStyle(fontSize: 40, fontWeight: FontWeight.w800, color: Colors.white),
+                          style: AppFonts.display(44, color: Colors.white),
                         ),
                       ),
                     ],
@@ -166,7 +166,7 @@ class _ActivitySection extends StatelessWidget {
                       const SizedBox(height: 4),
                       Text(
                         score == null ? 'Skor yok' : scoreLabel(score),
-                        style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: Colors.white, height: 1.2),
+                        style: AppFonts.display(24, color: Colors.white),
                       ),
                       const SizedBox(height: 4),
                       Text(
@@ -251,7 +251,7 @@ class _ActivitySection extends StatelessWidget {
                             ? Text('Bugün için uygun saat kalmadı, yarına bak', style: textTheme.titleMedium)
                             : Text(
                                 '${data.bestStart} – ${data.bestEnd}',
-                                style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.ink),
+                                style: AppFonts.display(26),
                               ),
                       ],
                     ),

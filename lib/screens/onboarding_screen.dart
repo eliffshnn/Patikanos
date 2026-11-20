@@ -2,7 +2,6 @@ import 'dart:ui' show ImageFilter;
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:google_fonts/google_fonts.dart';
 
 import '../data/user_service.dart';
 import '../theme/app_theme.dart';
@@ -17,7 +16,8 @@ TextStyle _serif(
   Color color = Colors.white,
   FontWeight weight = FontWeight.w400,
 }) =>
-    GoogleFonts.fraunces(
+    TextStyle(
+      fontFamily: AppFonts.serif,
       fontSize: size,
       color: color,
       fontWeight: weight,
@@ -32,7 +32,8 @@ TextStyle _sans(
   double height = 1.5,
   double letterSpacing = 0,
 }) =>
-    GoogleFonts.manrope(
+    TextStyle(
+      fontFamily: AppFonts.sans,
       fontSize: size,
       color: color,
       fontWeight: weight,

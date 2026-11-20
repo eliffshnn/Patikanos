@@ -39,7 +39,6 @@ dependencies:
   timezone: ^0.11.2
   flutter_map: ^8.3.2
   latlong2: ^0.10.1
-  google_fonts: ^6.3.3
   shared_preferences: ^2.5.5
   flutter_web_plugins:
     sdk: flutter
@@ -69,6 +68,34 @@ flutter:
   assets:
     - docs/routes.geojson
     - assets/onboarding/
+    - assets/fonts/OFL-Fraunces.txt
+    - assets/fonts/OFL-Manrope.txt
+
+  # Başlıklar Fraunces, metinler Manrope (SIL Open Font License, assets/fonts/OFL-*.txt)
+  fonts:
+    - family: Fraunces
+      fonts:
+        - asset: assets/fonts/Fraunces-Regular.ttf
+        - asset: assets/fonts/Fraunces-Italic.ttf
+          style: italic
+        - asset: assets/fonts/Fraunces-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Fraunces-MediumItalic.ttf
+          weight: 500
+          style: italic
+        - asset: assets/fonts/Fraunces-SemiBold.ttf
+          weight: 600
+    - family: Manrope
+      fonts:
+        - asset: assets/fonts/Manrope-Regular.ttf
+        - asset: assets/fonts/Manrope-Medium.ttf
+          weight: 500
+        - asset: assets/fonts/Manrope-SemiBold.ttf
+          weight: 600
+        - asset: assets/fonts/Manrope-Bold.ttf
+          weight: 700
+        - asset: assets/fonts/Manrope-ExtraBold.ttf
+          weight: 800
 
   # To add assets to your application, add an assets section, like this:
   # assets:

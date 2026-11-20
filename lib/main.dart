@@ -1,4 +1,6 @@
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import 'data/user_service.dart';
 import 'screens/home_screen.dart';
@@ -7,6 +9,12 @@ import 'theme/app_theme.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  // Uygulamaya gömülü yazı tiplerinin lisansları (SIL OFL), "Lisanslar" sayfasında görünür.
+  LicenseRegistry.addLicense(() async* {
+    for (final family in [AppFonts.serif, AppFonts.sans]) {
+      yield LicenseEntryWithLineBreaks([family], await rootBundle.loadString('assets/fonts/OFL-$family.txt'));
+    }
+  });
   final onboarded = await Session.load();
   runApp(MyApp(onboarded: onboarded));
 }

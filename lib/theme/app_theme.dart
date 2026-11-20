@@ -26,6 +26,16 @@ class AppColors {
   );
 }
 
+/// Başlıklar Fraunces (serif), metinler Manrope. Dosyalar assets/fonts/ içinde, pubspec.yaml'da kayıtlı.
+class AppFonts {
+  static const serif = 'Fraunces';
+  static const sans = 'Manrope';
+
+  /// Büyük başlıklar ve öne çıkan sayılar için (onboarding'deki başlıklarla aynı görünüm).
+  static TextStyle display(double size, {Color color = AppColors.ink, FontWeight weight = FontWeight.w500}) =>
+      TextStyle(fontFamily: serif, fontSize: size, fontWeight: weight, color: color, height: 1.12, letterSpacing: -0.4);
+}
+
 class AppTheme {
   static ThemeData get light {
     final scheme = ColorScheme.fromSeed(
@@ -41,14 +51,15 @@ class AppTheme {
       useMaterial3: true,
       colorScheme: scheme,
       scaffoldBackgroundColor: AppColors.sand,
+      fontFamily: AppFonts.sans,
       textTheme: const TextTheme(
-        headlineLarge: TextStyle(fontSize: 30, fontWeight: FontWeight.w800, color: AppColors.ink, height: 1.15),
-        headlineSmall: TextStyle(fontSize: 22, fontWeight: FontWeight.w800, color: AppColors.ink),
-        titleLarge: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.ink),
-        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.ink),
-        bodyLarge: TextStyle(fontSize: 15, color: AppColors.ink, height: 1.45),
-        bodyMedium: TextStyle(fontSize: 14, color: AppColors.muted, height: 1.4),
-        bodySmall: TextStyle(fontSize: 12, color: AppColors.muted),
+        headlineLarge: TextStyle(fontFamily: AppFonts.serif, fontSize: 32, fontWeight: FontWeight.w500, color: AppColors.ink, height: 1.1, letterSpacing: -0.6),
+        headlineSmall: TextStyle(fontFamily: AppFonts.serif, fontSize: 24, fontWeight: FontWeight.w600, color: AppColors.ink, letterSpacing: -0.3),
+        titleLarge: TextStyle(fontFamily: AppFonts.serif, fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.ink, letterSpacing: -0.2),
+        titleMedium: TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.ink, letterSpacing: -0.1),
+        bodyLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w500, color: AppColors.ink, height: 1.5),
+        bodyMedium: TextStyle(fontSize: 14, fontWeight: FontWeight.w500, color: AppColors.muted, height: 1.45),
+        bodySmall: TextStyle(fontSize: 12, fontWeight: FontWeight.w500, color: AppColors.muted),
         labelLarge: TextStyle(fontSize: 15, fontWeight: FontWeight.w700),
       ),
       appBarTheme: const AppBarTheme(
@@ -57,7 +68,7 @@ class AppTheme {
         elevation: 0,
         scrolledUnderElevation: 0,
         centerTitle: false,
-        titleTextStyle: TextStyle(fontSize: 18, fontWeight: FontWeight.w700, color: AppColors.ink),
+        titleTextStyle: TextStyle(fontFamily: AppFonts.serif, fontSize: 20, fontWeight: FontWeight.w500, color: AppColors.ink, letterSpacing: -0.2),
       ),
       cardTheme: CardThemeData(
         color: AppColors.surface,
@@ -74,7 +85,7 @@ class AppTheme {
           foregroundColor: Colors.white,
           minimumSize: const Size.fromHeight(54),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
-          textStyle: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700),
+          textStyle: const TextStyle(fontFamily: AppFonts.sans, fontSize: 16, fontWeight: FontWeight.w700),
         ),
       ),
       chipTheme: ChipThemeData(
@@ -82,8 +93,8 @@ class AppTheme {
         selectedColor: AppColors.pine,
         side: const BorderSide(color: AppColors.line),
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(30)),
-        labelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink),
-        secondaryLabelStyle: const TextStyle(fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
+        labelStyle: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, fontWeight: FontWeight.w600, color: AppColors.ink),
+        secondaryLabelStyle: const TextStyle(fontFamily: AppFonts.sans, fontSize: 13, fontWeight: FontWeight.w600, color: Colors.white),
         checkmarkColor: Colors.white,
         padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
       ),
@@ -113,6 +124,7 @@ class AppTheme {
         height: 68,
         labelTextStyle: WidgetStateProperty.resolveWith(
           (states) => TextStyle(
+            fontFamily: AppFonts.sans,
             fontSize: 12,
             fontWeight: states.contains(WidgetState.selected) ? FontWeight.w700 : FontWeight.w500,
             color: states.contains(WidgetState.selected) ? AppColors.pine : AppColors.muted,
