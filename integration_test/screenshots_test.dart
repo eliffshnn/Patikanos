@@ -62,5 +62,12 @@ void main() {
     await tester.tap(find.text('Profil'));
     await tester.pumpAndSettle();
     await shot('07_profil');
+
+    await tester.tap(find.text('Harita'));
+    // Harita parçaları OpenStreetMap'ten iniyor; birkaç saniye bekle.
+    for (var i = 0; i < 20; i++) {
+      await tester.pump(const Duration(milliseconds: 250));
+    }
+    await shot('08_harita');
   });
 }
