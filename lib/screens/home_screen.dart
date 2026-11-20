@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import 'today_screen.dart';
 import 'explore_screen.dart';
+import 'map_screen.dart';
 import 'favorites_screen.dart';
 import 'profile_screen.dart';
 
@@ -21,6 +22,7 @@ class _HomeScreenState extends State<HomeScreen> {
   final List<_NavItem> _navItems = const [
     _NavItem(label: 'Bugün', icon: Icons.wb_sunny_outlined, selectedIcon: Icons.wb_sunny_rounded),
     _NavItem(label: 'Keşfet', icon: Icons.explore_outlined, selectedIcon: Icons.explore_rounded),
+    _NavItem(label: 'Harita', icon: Icons.map_outlined, selectedIcon: Icons.map_rounded),
     _NavItem(label: 'Favoriler', icon: Icons.favorite_border_rounded, selectedIcon: Icons.favorite_rounded),
     _NavItem(label: 'Profil', icon: Icons.person_outline_rounded, selectedIcon: Icons.person_rounded),
   ];
@@ -46,6 +48,7 @@ class _HomeScreenState extends State<HomeScreen> {
         onSeeAllRoutes: () => _onNavTapped(_exploreIndex),
       ),
       const ExploreScreen(),
+      const MapScreen(),
       FavoritesScreen(onExplore: () => _onNavTapped(_exploreIndex)),
       const ProfileScreen(),
     ];
