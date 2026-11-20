@@ -1,152 +1,135 @@
 import 'package:flutter/material.dart';
 
-class ExploreScreen extends StatelessWidget {
+import '../data/route_model.dart';
+import '../theme/app_theme.dart';
+import '../widgets/route_card.dart';
+
+class ExploreScreen extends StatefulWidget {
   const ExploreScreen({super.key});
 
   @override
+  State<ExploreScreen> createState() => _ExploreScreenState();
+}
+
+class _ExploreScreenState extends State<ExploreScreen> {
+  String _query = '';
+  String? _activity; // walking, cycling
+  int? _difficulty;
+
+  bool _matches(TrailRoute r) {
+    final q = _query.trim().toLowerCase();
+    if (q.isNotEmpty && !r.name.toLowerCase().contains(q) && !r.region.toLowerCase().contains(q)) {
+      return false;
+    }
+    if (_activity != null && !r.activity.contains(_activity)) return false;
+    if (_difficulty != null && r.difficulty != _difficulty) return false;
+    return true;
+  }
+
+  @override
   Widget build(BuildContext context) {
-    return Container(
-      color: const Color(0xFFE9E4DF),
-      padding: const EdgeInsets.fromLTRB(18, 18, 18, 12),
-      child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text(
-              'Rotalar',
-              style: TextStyle(
-                fontSize: 28,
-                fontWeight: FontWeight.w800,
-                color: Color(0xFF1E1E1E),
+    final textTheme = Theme.of(context).textTheme;
+
+    return FutureBuilder<List<TrailRoute>>(
+      future: RouteRepository.load(),
+      builder: (context, snapshot) {
+        final all = snapshot.data ?? const <TrailRoute>[];
+        final routes = all.where(_matches).toList();
+
+        return CustomScrollView(
+          slivers: [
+            SliverPadding(
+              padding: const EdgeInsets.fromLTRB(20, 16, 20, 0),
+              sliver: SliverList.list(
+                children: [
+                  Text('Rotalar', style: textTheme.headlineLarge),
+                  const SizedBox(height: 4),
+                  Text('Muğla\'da ${all.length} yürüyüş ve bisiklet rotası', style: textTheme.bodyMedium),
+                  const SizedBox(height: 16),
+                  TextField(
+                    onChanged: (v) => setState(() => _query = v),
+                    textInputAction: TextInputAction.search,
+                    decoration: const InputDecoration(
+                      hintText: 'Rota veya ilçe ara',
+                      prefixIcon: Icon(Icons.search_rounded),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
               ),
             ),
-            const SizedBox(height: 12),
-            const Text(
-              'Öne çıkan rotalar',
-              style: TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.w700,
-                color: Color(0xFF2F2F2F),
+            SliverToBoxAdapter(
+              child: SingleChildScrollView(
+                scrollDirection: Axis.horizontal,
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Row(
+                  children: [
+                    _chip('Tümü', _activity == null && _difficulty == null, () {
+                      setState(() {
+                        _activity = null;
+                        _difficulty = null;
+                      });
+                    }),
+                    _chip('Yürüyüş', _activity == 'walking', () {
+                      setState(() => _activity = _activity == 'walking' ? null : 'walking');
+                    }, icon: Icons.hiking_rounded),
+                    _chip('Bisiklet', _activity == 'cycling', () {
+                      setState(() => _activity = _activity == 'cycling' ? null : 'cycling');
+                    }, icon: Icons.directions_bike_rounded),
+                    for (final d in [1, 2, 3])
+                      _chip(difficultyLabel(d), _difficulty == d, () {
+                        setState(() => _difficulty = _difficulty == d ? null : d);
+                      }, dot: difficultyColor(d)),
+                  ],
+                ),
               ),
             ),
-            const SizedBox(height: 14),
-            const Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                _FilterChip(label: 'Gün doğumu'),
-                _FilterChip(label: 'Sahil'),
-                _FilterChip(label: 'Kırsal'),
-                _FilterChip(label: 'Zor'),
-              ],
-            ),
-            const SizedBox(height: 18),
-            _RouteCard(
-              title: 'Muğla Sahil Yürüyüş',
-              subtitle: '4.5 km • 32 dk',
-              color: const Color(0xFF1D7A68),
-            ),
-            const SizedBox(height: 12),
-            _RouteCard(
-              title: 'Büyük Orman Bisiklet',
-              subtitle: '9.1 km • 54 dk',
-              color: const Color(0xFFE7A94A),
-            ),
-            const SizedBox(height: 12),
-            _RouteCard(
-              title: 'Mavi Körfez',
-              subtitle: '6.3 km • 41 dk',
-              color: const Color(0xFF2C7BEA),
-            ),
+            if (snapshot.connectionState != ConnectionState.done)
+              const SliverFillRemaining(child: Center(child: CircularProgressIndicator()))
+            else if (routes.isEmpty)
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.all(32),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      const Icon(Icons.search_off_rounded, size: 48, color: AppColors.muted),
+                      const SizedBox(height: 12),
+                      Text('Bu filtrelere uyan rota yok', style: textTheme.titleMedium),
+                    ],
+                  ),
+                ),
+              )
+            else
+              SliverPadding(
+                padding: const EdgeInsets.fromLTRB(20, 16, 20, 24),
+                sliver: SliverList.separated(
+                  itemCount: routes.length,
+                  separatorBuilder: (_, _) => const SizedBox(height: 12),
+                  itemBuilder: (context, i) => RouteCard(route: routes[i]),
+                ),
+              ),
           ],
-        ),
-      ),
+        );
+      },
     );
   }
-}
 
-class _FilterChip extends StatelessWidget {
-  const _FilterChip({required this.label});
-
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF5F4F2),
-        border: Border.all(color: const Color(0xFF2B2B2B), width: 1.1),
-        borderRadius: BorderRadius.circular(18),
-      ),
-      child: Text(
-        label,
-        style: const TextStyle(
-          fontSize: 12,
-          fontWeight: FontWeight.w600,
-          color: Color(0xFF232323),
-        ),
-      ),
-    );
-  }
-}
-
-class _RouteCard extends StatelessWidget {
-  const _RouteCard({
-    required this.title,
-    required this.subtitle,
-    required this.color,
-  });
-
-  final String title;
-  final String subtitle;
-  final Color color;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(14),
-      decoration: BoxDecoration(
-        color: const Color(0xFFF6F4F2),
-        border: Border.all(color: const Color(0xFF2B2B2B), width: 1.2),
-        borderRadius: BorderRadius.circular(16),
-      ),
-      child: Row(
-        children: [
-          Container(
-            width: 70,
-            height: 70,
-            decoration: BoxDecoration(
-              color: color,
-              borderRadius: BorderRadius.circular(14),
-            ),
-          ),
-          const SizedBox(width: 14),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  title,
-                  style: const TextStyle(
-                    fontSize: 17,
-                    fontWeight: FontWeight.w800,
-                    color: Color(0xFF1D1D1D),
-                  ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  subtitle,
-                  style: const TextStyle(
-                    fontSize: 13,
-                    color: Color(0xFF4B4B4B),
-                  ),
-                ),
-              ],
-            ),
-          ),
-          const Icon(Icons.arrow_forward_ios_rounded, size: 18, color: Color(0xFF1D1D1D)),
-        ],
+  Widget _chip(String label, bool selected, VoidCallback onTap, {IconData? icon, Color? dot}) {
+    final fg = selected ? Colors.white : AppColors.ink;
+    return Padding(
+      padding: const EdgeInsets.only(right: 8),
+      child: FilterChip(
+        selected: selected,
+        showCheckmark: false,
+        onSelected: (_) => onTap(),
+        avatar: icon != null
+            ? Icon(icon, size: 16, color: fg)
+            : dot != null
+                ? Container(width: 8, height: 8, decoration: BoxDecoration(color: dot, shape: BoxShape.circle))
+                : null,
+        label: Text(label, style: TextStyle(color: fg, fontWeight: FontWeight.w600)),
       ),
     );
   }
