@@ -12,7 +12,7 @@ def fake_hourly(days, feels_by_day=(18.0, 35.0)):
     for d in range(days):
         for h in range(24):
             times.append(f"2000-01-{1 + d:02d}T{h:02d}:00")
-            feels.append(feels_by_day[d])
+            feels.append(feels_by_day[d % len(feels_by_day)])
     n = len(times)
     return {
         "time": times,
@@ -93,3 +93,27 @@ def test_stale_flag_is_passed_through(monkeypatch, client):
     r = client.get("/weather/score", params={"lat": 37.21, "lon": 28.36, "activity": "bike"})
     assert r.status_code == 200
     assert r.json()["stale"] is True
+
+
+def test_week_has_seven_days(client):
+    r = client.get("/weather/week", params={"lat": 37.21, "lon": 28.36, "activity": "walk"})
+    assert r.status_code == 200
+    body = r.json()
+    assert client.calls == [7]
+    assert len(body["days"]) == 7
+    assert body["days"][1]["date"] == "2000-01-02"
+    assert body["days"][2]["best_window"] is not None   # 18 derece: iyi bir gün
+    assert body["days"][1]["max_feels_like"] == 35.0
+
+
+def test_week_hot_day_scores_lower(client):
+    days = client.get("/weather/week", params={"lat": 37.21, "lon": 28.36, "activity": "bike"}).json()["days"]
+    assert days[1]["max_score"] < days[2]["max_score"]   # 35 derece gün < 18 derece gün
+
+
+def test_week_returns_503_when_open_meteo_down(monkeypatch, client):
+    def broken(lat, lon, days=1):
+        raise httpx.ConnectError("yok")
+    monkeypatch.setattr(weather_router, "get_hourly_with_meta", broken)
+    r = client.get("/weather/week", params={"lat": 37.21, "lon": 28.36, "activity": "bike"})
+    assert r.status_code == 503

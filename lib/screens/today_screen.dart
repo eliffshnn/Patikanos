@@ -91,6 +91,7 @@ class TodayScreen extends StatelessWidget {
             context,
             MaterialPageRoute(
               builder: (_) => WeatherScreen(
+                useDeviceLocation: true,
                 activity: selectedActivity == 'Yürüyüş'
                     ? 'walk'
                     : (selectedActivity == 'İkisi de' ? 'both' : 'bike'),

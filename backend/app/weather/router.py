@@ -74,3 +74,47 @@ def get_score(
             for i in range(len(times))
         ],
     }
+
+@router.get("/week")
+def get_week(
+    lat: Annotated[float, Query(ge=-90, le=90)],
+    lon: Annotated[float, Query(ge=-180, le=180)],
+    activity: Literal["bike", "walk"],
+):
+    """7 günlük tahmin: her gün için en yüksek skor ve en iyi 2 saatlik zaman."""
+    try:
+        h, fetched_at, stale = get_hourly_with_meta(lat, lon, days=7)
+    except httpx.HTTPError:
+        raise HTTPException(status_code=503, detail="Hava durumu servisine ulaşılamadı")
+
+    times = h["time"]
+    feels = h["apparent_temperature"]
+    hours = [int(t[11:13]) for t in times]
+    scores = [score_hour(feels[i], h["wind_speed_10m"][i], h["precipitation_probability"][i],
+                         h["uv_index"][i], activity, hours[i]) for i in range(len(times))]
+    now_key = datetime.now(TZ).strftime("%Y-%m-%dT%H:00")
+
+    days = []
+    for d in range(0, len(times), 24):
+        end = min(d + 24, len(times))
+        start = d
+        if d == 0 and now_key in times[d:end]:
+            start = times.index(now_key)
+        window = best_window(times[:end], scores[:end], start=start)
+        daytime = [scores[i] for i in range(d, end) if 6 <= hours[i] < 22] or scores[d:end]
+        day_feels = feels[d:end]
+        days.append({
+            "date": times[d][:10],
+            "max_score": max(daytime),
+            "min_feels_like": min(day_feels),
+            "max_feels_like": max(day_feels),
+            "best_window": ({"start": times[window[0]][11:16],
+                             "end": window_label(times, *window)[-5:]} if window else None),
+        })
+
+    return {
+        "activity": activity,
+        "updated_at": datetime.fromtimestamp(fetched_at, TZ).strftime("%H:%M"),
+        "stale": stale,
+        "days": days,
+    }

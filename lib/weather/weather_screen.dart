@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 
 import '../theme/app_theme.dart';
 import 'detail_screen.dart';
+import 'location_service.dart';
+import 'week_screen.dart';
 import 'notification_service.dart';
 import 'weather_model.dart';
 import 'weather_service.dart';
@@ -13,7 +15,11 @@ class WeatherScreen extends StatefulWidget {
     this.lat = WeatherService.muglaLat,
     this.lon = WeatherService.muglaLon,
     this.placeName = 'Muğla',
+    this.useDeviceLocation = false,
   });
+
+  /// true: konum izni istenir, yoksa Muğla merkez (W-09)
+  final bool useDeviceLocation;
 
   /// 'bike', 'walk' veya 'both'
   final String activity;
@@ -28,6 +34,9 @@ class WeatherScreen extends StatefulWidget {
 class _WeatherScreenState extends State<WeatherScreen> {
   final _service = WeatherService();
   late Future<List<WeatherScore>> _future;
+  late double _lat = widget.lat;
+  late double _lon = widget.lon;
+  late String _place = widget.placeName;
 
   List<String> get _activities =>
       widget.activity == 'both' ? ['bike', 'walk'] : [widget.activity];
@@ -39,12 +48,22 @@ class _WeatherScreenState extends State<WeatherScreen> {
   }
 
   void _load() {
-    _future = Future.wait(_activities.map((a) => _service.getScore(
-          lat: widget.lat,
-          lon: widget.lon,
-          activity: a,
-        )));
+    _future = _fetch();
     NotificationService.scheduleAll(_activities.first).catchError((_) {});
+  }
+
+  Future<List<WeatherScore>> _fetch() async {
+    if (widget.useDeviceLocation) {
+      final loc = await currentOrMugla();
+      if (mounted) {
+        setState(() {
+          _lat = loc.lat;
+          _lon = loc.lon;
+          _place = loc.name;
+        });
+      }
+    }
+    return Future.wait(_activities.map((a) => _service.getScore(lat: _lat, lon: _lon, activity: a)));
   }
 
   @override
@@ -59,12 +78,23 @@ class _WeatherScreenState extends State<WeatherScreen> {
               children: [
                 const Icon(Icons.place_rounded, size: 13, color: AppColors.sea),
                 const SizedBox(width: 2),
-                Text(widget.placeName, style: Theme.of(context).textTheme.bodySmall),
+                Text(_place, style: Theme.of(context).textTheme.bodySmall),
               ],
             ),
           ],
         ),
         actions: [
+          IconButton(
+            icon: const Icon(Icons.calendar_month_rounded),
+            tooltip: '7 günlük tahmin',
+            onPressed: () => Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => WeekScreen(
+                    activity: _activities.first, lat: _lat, lon: _lon, placeName: _place),
+              ),
+            ),
+          ),
           IconButton(
             icon: const Icon(Icons.notifications_active_outlined),
             tooltip: 'Bildirim testi',
