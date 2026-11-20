@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 
 import '../data/favorites.dart';
+import '../data/user_service.dart';
 import '../theme/app_theme.dart';
+import 'onboarding_screen.dart';
 
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
@@ -37,19 +39,26 @@ class ProfileScreen extends StatelessWidget {
                   ),
                   const SizedBox(width: 16),
                   Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Ayşe Yılmaz',
-                          style: TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
-                        ),
-                        const SizedBox(height: 2),
-                        Text(
-                          'ayse@example.com',
-                          style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
-                        ),
-                      ],
+                    child: ValueListenableBuilder<SessionData?>(
+                      valueListenable: Session.current,
+                      builder: (context, session, _) {
+                        final name = session?.name ?? '';
+                        final email = session?.email ?? '';
+                        return Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              name.isEmpty ? 'Misafir' : name,
+                              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.w800, color: Colors.white),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              session?.userId == null ? '${email.isEmpty ? '' : '$email · '}Hesap oluşturulmadı' : email,
+                              style: TextStyle(fontSize: 13, color: Colors.white.withValues(alpha: 0.8)),
+                            ),
+                          ],
+                        );
+                      },
                     ),
                   ),
                 ],
@@ -71,12 +80,19 @@ class ProfileScreen extends StatelessWidget {
         const SizedBox(height: 24),
         Text('Tercihler', style: textTheme.titleLarge),
         const SizedBox(height: 10),
-        const _SettingsGroup(
+        _SettingsGroup(
           children: [
-            _SettingsRow(icon: Icons.directions_bike_rounded, label: 'Aktivite tercihi', value: 'Bisiklet'),
-            _SettingsRow(icon: Icons.thermostat_rounded, label: 'Sıcaklık birimi', value: '°C'),
-            _SettingsRow(icon: Icons.notifications_none_rounded, label: 'Bildirimler', value: 'Açık'),
-            _SettingsRow(icon: Icons.language_rounded, label: 'Dil', value: 'Türkçe'),
+            ValueListenableBuilder<SessionData?>(
+              valueListenable: Session.current,
+              builder: (context, session, _) => _SettingsRow(
+                icon: Icons.directions_bike_rounded,
+                label: 'Aktivite tercihi',
+                value: session?.activity ?? 'Bisiklet',
+              ),
+            ),
+            const _SettingsRow(icon: Icons.thermostat_rounded, label: 'Sıcaklık birimi', value: '°C'),
+            const _SettingsRow(icon: Icons.notifications_none_rounded, label: 'Bildirimler', value: 'Açık'),
+            const _SettingsRow(icon: Icons.language_rounded, label: 'Dil', value: 'Türkçe'),
           ],
         ),
         const SizedBox(height: 24),
@@ -90,7 +106,7 @@ class ProfileScreen extends StatelessWidget {
         ),
         const SizedBox(height: 24),
         OutlinedButton.icon(
-          onPressed: () {},
+          onPressed: () => _logout(context),
           icon: const Icon(Icons.logout_rounded),
           label: const Text('Çıkış yap'),
           style: OutlinedButton.styleFrom(
@@ -102,6 +118,31 @@ class ProfileScreen extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+
+  Future<void> _logout(BuildContext context) async {
+    final ok = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Çıkış yapılsın mı?'),
+        content: const Text('Bu cihazdaki adın, e-postan ve tercihlerin silinir. Uygulama baştan başlar.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(context, false), child: const Text('Vazgeç')),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            style: TextButton.styleFrom(foregroundColor: AppColors.bad),
+            child: const Text('Çıkış yap'),
+          ),
+        ],
+      ),
+    );
+    if (ok != true || !context.mounted) return;
+    await Session.clear();
+    if (!context.mounted) return;
+    Navigator.of(context).pushAndRemoveUntil(
+      MaterialPageRoute(builder: (_) => const OnboardingScreen()),
+      (_) => false,
     );
   }
 }

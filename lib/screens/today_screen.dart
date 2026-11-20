@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../data/route_model.dart';
+import '../data/user_service.dart';
 import '../theme/app_theme.dart';
 import '../weather/weather_screen.dart';
 import '../widgets/route_card.dart';
@@ -42,7 +43,13 @@ class TodayScreen extends StatelessWidget {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text('Merhaba 👋', style: textTheme.bodyMedium),
+                  ValueListenableBuilder<SessionData?>(
+                    valueListenable: Session.current,
+                    builder: (context, session, _) {
+                      final name = session?.name.split(' ').first ?? '';
+                      return Text(name.isEmpty ? 'Merhaba 👋' : 'Merhaba, $name 👋', style: textTheme.bodyMedium);
+                    },
+                  ),
                   Text('Patikanos', style: textTheme.headlineSmall),
                 ],
               ),

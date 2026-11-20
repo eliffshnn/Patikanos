@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../data/user_service.dart';
+
 import 'today_screen.dart';
 import 'explore_screen.dart';
 import 'map_screen.dart';
@@ -15,7 +17,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  String _selectedActivity = 'Bisiklet';
+  String _selectedActivity = Session.current.value?.activity ?? 'Bisiklet';
 
   static const _exploreIndex = 1;
 
