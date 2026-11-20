@@ -20,7 +20,8 @@ Run this list on an iOS simulator and an Android emulator before each demo, with
 
 | # | Check | Expected |
 |---|---|---|
-| D1 | Open the app | Bugün tab opens, no layout errors or overflow stripes |
+| D0 | First launch (or after Çıkış yap) | Onboarding opens; Atla jumps to the last page; Keşfetmeye başla creates the account and opens Bugün with the user's name |
+| D1 | Open the app again | Bugün tab opens directly, no layout errors or overflow stripes |
 | D2 | Switch through all four tabs | Each tab opens; going back keeps the scroll position and filters |
 | D3 | Bugün → choose Yürüyüş → Devam | Weather screen shows a walking score, tips and the best time |
 | D4 | Bugün → İkisi de → Devam | Weather screen shows both cycling and walking sections |

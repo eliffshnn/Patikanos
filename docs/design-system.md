@@ -30,7 +30,7 @@ Inspired by Muğla: pine forests, the Aegean, sand and sunset.
 | `sunsetLight` | `#F6C79A` | Sun illustration, focused input on photos |
 | `sand` | `#F6F1E7` | Page background, light pill buttons |
 | `sandDark` | `#EDE5D5` | Progress track, disabled buttons |
-| `surface` | `#FFFFFF` | Cards |
+| `surface` | `#FCF9F3` | Cards, nav bar (warm paper tone instead of pure white) |
 | `ink` | `#1C2A27` | Main text |
 | `muted` | `#6B7A75` | Secondary text, icons |
 | `line` | `#E4DDD0` | Card borders, dividers |
@@ -70,6 +70,12 @@ Headings use **Fraunces** (serif), everything else **Manrope**. Both are bundled
 | `eyebrow` | Manrope | 11 / 700, letter-spaced | Small caps headers, badges | `labelSmall` |
 
 An italic word inside a Fraunces heading is the one decorative accent ("Bugün hangi rota, *hangi saatte?*").
+
+## Photos and maps
+
+`AppImages` holds the three onboarding photos. They are mood images only (Bugün header, weather score card, "Ne zaman gitmeli?" card) because none of them shows a specific route. Wherever a specific route is shown (route cards, route detail header) the app shows the real OpenStreetMap map of its start point (`RouteMapPreview` in `lib/widgets/nature.dart`).
+
+Shared building blocks in `lib/widgets/nature.dart`: `PillButton` (the arrow pill button from onboarding, used for every primary action), `PhotoHeader`, `GlassPill` and `RouteMapPreview`.
 
 ## Shadows
 

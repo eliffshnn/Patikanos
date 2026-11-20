@@ -1,10 +1,10 @@
 # Navigation Structure
 
-This document shows which screens Patikanos has and how the user moves between them. It reflects the code on `main` after PR #44 and #45; screens that are planned but not built yet are drawn with dashed borders.
+This document shows which screens Patikanos has and how the user moves between them. It reflects the code after the onboarding, map fixes and design-system changes; screens that are planned but not built yet are drawn with dashed borders.
 
 ## Tabs
 
-The app opens on `HomeScreen` (`lib/screens/home_screen.dart`), which holds a bottom navigation bar with five tabs. Tabs keep their state when you switch between them (`IndexedStack`).
+On first launch the app opens on `OnboardingScreen` (`lib/screens/onboarding_screen.dart`, three pages). After that it opens on `HomeScreen` (`lib/screens/home_screen.dart`), which holds a bottom navigation bar with five tabs. Tabs keep their state when you switch between them (`IndexedStack`).
 
 | Tab | Screen | File | Purpose |
 |---|---|---|---|
@@ -18,7 +18,15 @@ The app opens on `HomeScreen` (`lib/screens/home_screen.dart`), which holds a bo
 
 ```mermaid
 flowchart TD
-    Start([App start]) --> Home
+    Start([App start]) -- "first launch" --> Onboarding
+    Start -- "session saved" --> Home
+
+    subgraph Onboarding["OnboardingScreen · 3 pages"]
+        direction LR
+        O1["Intro"] -- "Başlayalım" --> O2["Smart timing"] -- "Devam" --> O3["Activity, name, e-mail"]
+        O1 -. "Atla" .-> O3
+    end
+    O3 -- "Keşfetmeye başla<br/>(POST /users)" --> Home
 
     subgraph Home["HomeScreen · bottom navigation"]
         direction LR
@@ -42,9 +50,10 @@ flowchart TD
 
     Notif(["Local notification<br/>hourly + 21:00"]) -. "opens app" .-> Home
 
-    Onboarding["Onboarding"]:::planned -. "first launch" .-> Home
-    Map -- "tap a marker" --> PinSheet["Bottom sheet<br/>name, region, distance"]
-    PinSheet -. "open route detail" .-> RouteDetail
+    Map -- "tap a marker" --> PinSheet["Bottom sheet<br/>stats, ♥"]
+    Map -- "tap a cluster" --> Map
+    PinSheet -- "Rota detayını aç" --> RouteDetail
+    Profile -- "Çıkış yap" --> Onboarding
     Favs -. "Geçmiş" .-> History["Activity history"]:::planned
 
     classDef planned stroke-dasharray: 5 5,color:#888
@@ -57,15 +66,21 @@ Taken on an iPhone 17 Pro Max simulator with the backend running. To refresh the
 ```sh
 flutter drive --driver=test_driver/integration_test.dart \
   --target=integration_test/screenshots_test.dart -d <device>
+# shrink for the repo (macOS): PNG -> JPEG
+cd docs/screenshots && for f in *.png; do sips -Z 1434 -s format jpeg -s formatOptions 78 "$f" --out "${f%.png}.jpg" && rm "$f"; done
 ```
+
+| Onboarding 1 | Onboarding 2 | Onboarding 3 |
+|---|---|---|
+| ![Onboarding 1](screenshots/01_onboarding_1.jpg) | ![Onboarding 2](screenshots/02_onboarding_2.jpg) | ![Onboarding 3](screenshots/03_onboarding_3.jpg) |
 
 | Bugün | Weather (both) | Hourly detail | Keşfet |
 |---|---|---|---|
-| ![Bugün](screenshots/01_bugun.png) | ![Weather](screenshots/02_hava_durumu.png) | ![Hourly detail](screenshots/03_saatlik_detay.png) | ![Keşfet](screenshots/04_kesfet.png) |
+| ![Bugün](screenshots/04_bugun.jpg) | ![Weather](screenshots/05_hava_durumu.jpg) | ![Hourly detail](screenshots/06_saatlik_detay.jpg) | ![Keşfet](screenshots/07_kesfet.jpg) |
 
-| Route detail | Favoriler | Profil | Harita |
+| Route detail | Harita | Favoriler | Profil |
 |---|---|---|---|
-| ![Route detail](screenshots/05_rota_detayi.png) | ![Favoriler](screenshots/06_favoriler.png) | ![Profil](screenshots/07_profil.png) | ![Harita](screenshots/08_harita.png) |
+| ![Route detail](screenshots/08_rota_detayi.jpg) | ![Harita](screenshots/09_harita.jpg) | ![Favoriler](screenshots/10_favoriler.jpg) | ![Profil](screenshots/11_profil.jpg) |
 
 ## Actions that do not navigate
 
@@ -75,13 +90,12 @@ flutter drive --driver=test_driver/integration_test.dart \
 | Keşfet | Search box, filter chips | Filters the list in place |
 | Route detail | Start point tile | Copies coordinates to the clipboard |
 | Weather screen | 🔔 button | Sends a test notification after 5 seconds |
-| Profil | Settings rows, Çıkış yap | Not implemented yet (placeholder) |
+| Profil | Settings rows | Not implemented yet (placeholder) |
 
 ## Planned screens
 
 | Screen | Owner | Status |
 |---|---|---|
-| Map → route detail | Esma Gül Baş | The marker sheet does not open `RouteDetailScreen` yet; route lines (`geometry`) are still empty |
-| Onboarding (first launch) | UI/UX | Not started; the activity picker on Bugün covers the choice for now |
+| Route lines on the map | Esma Gül Baş | `geometry` is still empty in the route data; only start points are shown |
 | Activity history (Geçmiş) | UI/UX | Removed from Favoriler in PR #44 until there is data to show |
 | Sign-in | Backend + UI/UX | Needed before favorites and preferences can sync to `/users/{id}/...` |
