@@ -4,7 +4,7 @@ from shapely.geometry import mapping
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 from app.weather.router import router as weather_router
-
+from fastapi.middleware.cors import CORSMiddleware
 from app.db import Base, engine, get_db
 from pydantic import BaseModel
 
@@ -13,6 +13,14 @@ from app.models import Favorite, Route, User
 # Create tables on startup (routes, users, favorites) if they do not exist yet
 Base.metadata.create_all(bind=engine)
 app = FastAPI(title="Patikanos API")
+# Flutter web (Chrome) geliştirme sunucusu rastgele bir localhost portundan
+# istek atar; tarayıcı CORS izni olmadan bu istekleri engeller.
+app.add_middleware(
+    CORSMiddleware,
+    allow_origin_regex=r"http://(localhost|127\.0\.0\.1)(:\d+)?",
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 app.include_router(weather_router)
 
 

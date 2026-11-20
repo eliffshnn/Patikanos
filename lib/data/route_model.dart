@@ -1,8 +1,12 @@
 import 'dart:convert';
 
+import 'package:flutter/foundation.dart';
 import 'package:flutter/services.dart';
+import 'package:http/http.dart' as http;
 
-/// Bir rota; alanlar docs/route-data-format.md ile aynı.
+import '../api/api_config.dart';
+
+/// A trail route; fields match docs/route-data-format.md.
 class TrailRoute {
   final String id;
   final String name;
@@ -35,10 +39,11 @@ class TrailRoute {
   bool get isCycling => activity.contains('cycling');
   bool get isWalking => activity.contains('walking');
 
-  /// Hava skoru API'sinin beklediği aktivite adı.
+  /// Activity name expected by the weather score API.
   String get weatherActivity => isCycling && !isWalking ? 'bike' : 'walk';
 
-  /// Süre yoksa kaba tahmin: yürüyüşte 4 km/sa + her 100 m tırmanış için 10 dk, bisiklette 15 km/sa.
+  /// Rough estimate when no duration is given: walking 4 km/h plus 10 min
+  /// per 100 m of climbing, cycling 15 km/h.
   int get durationMin =>
       estDurationMin ??
       (isCycling && !isWalking
@@ -76,11 +81,38 @@ String formatDuration(int minutes) {
 class RouteRepository {
   static Future<List<TrailRoute>>? _cache;
 
-  /// Sprint 3: rotalar uygulamayla birlikte gelen GeoJSON'dan okunur (Sprint 4'te /routes API'si).
+  /// Routes are read from the backend's /routes API (B-8). If the backend is
+  /// down, returns an error or returns an empty list, the bundled
+  /// docs/routes.geojson is used instead, so the app keeps working.
   static Future<List<TrailRoute>> load() => _cache ??= _read();
 
   static Future<List<TrailRoute>> _read() async {
-    final raw = await rootBundle.loadString('docs/routes.geojson');
+    try {
+      return await _fromApi();
+    } catch (e) {
+      debugPrint('Could not load routes from the API, using bundled file: $e');
+      return _fromAsset();
+    }
+  }
+
+  static Future<List<TrailRoute>> _fromApi() async {
+    final response = await http
+        .get(Uri.parse('${ApiConfig.baseUrl}/routes'))
+        .timeout(const Duration(seconds: 5));
+    if (response.statusCode != 200) {
+      throw Exception('HTTP ${response.statusCode}');
+    }
+    final routes = _parse(utf8.decode(response.bodyBytes));
+    // An empty database (routes not seeded yet) should not leave the app empty.
+    if (routes.isEmpty) throw Exception('API returned no routes');
+    return routes;
+  }
+
+  static Future<List<TrailRoute>> _fromAsset() async =>
+      _parse(await rootBundle.loadString('docs/routes.geojson'));
+
+  // The API and the bundled file use the same GeoJSON FeatureCollection format.
+  static List<TrailRoute> _parse(String raw) {
     final data = jsonDecode(raw) as Map<String, dynamic>;
     return (data['features'] as List)
         .map((f) => TrailRoute.fromFeature(f as Map<String, dynamic>))
